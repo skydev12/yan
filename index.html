@@ -20,6 +20,23 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
     }
   </style>
+  <!-- Firebase Configuration -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyAe7DiRe54EYdR4g5eflnBOxWFiGvAu34c",
+      authDomain: "risky-f2de4.firebaseapp.com",
+      databaseURL: "https://risky-f2de4-default-rtdb.firebaseio.com/",
+      projectId: "risky-f2de4",
+      storageBucket: "risky-f2de4.appspot.com",
+      messagingSenderId: "70573427034",
+      appId: "1:70573427034:web:85ee8f762992016d310b63"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body class="bg-custom">
   <div class="h-screen flex flex-col items-center justify-center">
@@ -35,16 +52,11 @@
   
   <script>
     document.getElementById('yesBtn').addEventListener('click', function() {
-      // Menampilkan notifikasi sederhana
-      alert('Terima kasih, kami akan mengirimkan notifikasi ke WhatsApp Anda jika Yana setuju!');
-
-      // Nomor WhatsApp dan pesan
-      const phoneNumber = '6282173242194'; // Ganti dengan nomor WhatsApp Anda
-      const message = 'Yana setuju menjadi pacarmu!';
-      
-      // Membuka tautan WhatsApp
-      const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-      window.open(whatsappURL, '_blank');
+      // Menyimpan data ke Firebase
+      firebase.database().ref('notifikasi/').push({
+        message: 'Yana setuju menjadi pacarmu!',
+        timestamp: Date.now()
+      });
     });
 
     document.getElementById('noBtn').addEventListener('click', function() {
