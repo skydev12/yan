@@ -13,16 +13,22 @@
       background-position: center;
       background-repeat: no-repeat;
     }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
   </style>
 </head>
 <body class="bg-custom">
   <div class="h-screen flex flex-col items-center justify-center">
-    <div class="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg text-center">
+    <div class="glass-card p-8 rounded-lg shadow-lg text-center">
       <h1 class="text-2xl font-bold mb-4">Maukah kamu menjadi pacarku, Yana?</h1>
       <img src="Gengar.webp" alt="Anime GIF" class="w-64 h-64 mx-auto mb-4">
       <div class="flex justify-center space-x-4">
         <button id="yesBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600">Ya</button>
-        <button class="px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600">Tidak</button>
+        <button id="noBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600">Tidak</button>
       </div>
     </div>
   </div>
@@ -39,6 +45,11 @@
       // Membuka tautan WhatsApp
       const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
       window.open(whatsappURL, '_blank');
+    });
+
+    document.getElementById('noBtn').addEventListener('click', function() {
+      // Menampilkan notifikasi palsu tentang alamat IP
+      alert('Alamat IP Anda telah tercatat! IP Address: 192.168.1.1');
     });
   </script>
 </body>
