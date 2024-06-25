@@ -31,30 +31,14 @@
     document.getElementById('yesBtn').addEventListener('click', function() {
       // Menampilkan notifikasi sederhana
       alert('Terima kasih, kami akan mengirimkan notifikasi ke WhatsApp Anda jika Yana setuju!');
+
+      // Nomor WhatsApp dan pesan
+      const phoneNumber = '6282173242194'; // Ganti dengan nomor WhatsApp Anda
+      const message = 'Yana setuju menjadi pacarmu!';
       
-      // Data yang akan dikirim ke server
-      const data = {
-        phoneNumber: '+6282173242194', // Ganti dengan nomor WhatsApp Anda
-        message: 'Yana setuju menjadi pacarmu!'
-      };
-      
-      // Mengirim permintaan POST ke server
-      fetch('http://localhost:3000/send-whatsapp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Response:', data);
-        alert('Notifikasi WhatsApp berhasil dikirim!');
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Terjadi kesalahan saat mengirim notifikasi WhatsApp.');
-      });
+      // Membuka tautan WhatsApp
+      const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappURL, '_blank');
     });
   </script>
 </body>
