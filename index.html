@@ -52,16 +52,21 @@
   
   <script>
     document.getElementById('yesBtn').addEventListener('click', function() {
-      // Menyimpan data ke Firebase dengan struktur yang benar
+      // Simpan data ke Firebase untuk notifikasi bahwa Yana menerima
       firebase.database().ref('notifikasi/').push({
-        message: 'Yana setuju menjadi pacarmu!',
+        message: 'Selamat! Kamu sekarang menjadi pacar Risky!',
         timestamp: Date.now()
       });
+      alert('Notifikasi telah dikirim kepada Yana bahwa kamu sekarang menjadi pacarnya.\nTindakan kamu telah direkam.');
     });
 
     document.getElementById('noBtn').addEventListener('click', function() {
-      // Menampilkan notifikasi palsu tentang alamat IP
-      alert('Alamat IP Anda telah tercatat! IP Address: 192.168.1.1');
+      // Simpan data ke Firebase untuk notifikasi bahwa Yana menolak
+      firebase.database().ref('notifikasi/').push({
+        message: 'Maaf, Yana tidak tertarik menjadi pacarmu. :( ',
+        timestamp: Date.now()
+      });
+      alert('Notifikasi telah dikirim kepada Yana tentang penolakanmu.\nTindakan kamu telah direkam.');
     });
   </script>
 </body>
