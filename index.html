@@ -41,7 +41,7 @@
 <body class="bg-custom">
   <div class="h-screen flex flex-col items-center justify-center">
     <div class="glass-card p-8 rounded-lg shadow-lg text-center">
-      <h1 class="text-2xl font-bold mb-4">Maukah kamu menjadi pacarku, Yana?</h1>
+      <h1 class="text-2xl font-bold mb-4">Maukah kamu menjadi pacarku,.....?</h1>
       <img src="Gengar.webp" alt="Anime GIF" class="w-64 h-64 mx-auto mb-4">
       <div class="flex justify-center space-x-4">
         <button id="yesBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600">Ya</button>
@@ -52,18 +52,18 @@
   
   <script>
     document.getElementById('yesBtn').addEventListener('click', function() {
-      // Simpan data ke Firebase untuk notifikasi bahwa Yana menerima
+    
       firebase.database().ref('notifikasi/').push({
-        message: 'Selamat! Kamu sekarang menjadi pacar yana!',
+        message: 'Selamat! Kamu sekarang menjadi pacar si anu!',
         timestamp: Date.now()
       });
       alert('Notifikasi telah dikirim kepada risky bahwa kamu sekarang menjadi pacarnya.\nTindakan kamu telah direkam.');
     });
 
     document.getElementById('noBtn').addEventListener('click', function() {
-      // Simpan data ke Firebase untuk notifikasi bahwa Yana menolak
+      
       firebase.database().ref('notifikasi/').push({
-        message: 'Maaf, Yana tidak tertarik menjadi pacarmu. :( ',
+        message: 'Maaf, si anu tidak tertarik menjadi pacarmu. :( ',
         timestamp: Date.now()
       });
       alert('Notifikasi telah dikirim kepada risky tentang penolakanmu.\nTindakan kamu telah direkam.');
