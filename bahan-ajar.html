@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bahan Ajar</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-storage.js"></script>
+    <style>
+        /* Styling for the sidebar and main content */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column; /* Make sure body is column layout */
+            min-height: 100vh; /* Ensure full height of viewport */
+            background-color: #f3f4f6; /* Light gray background */
+        }
+
+        .sidebar {
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            transition: transform 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-200px);
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .sidebar a:hover {
+            background-color: #555;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-left: 200px;
+            overflow-x: hidden;
+            background-color: #fff; /* White background for main content */
+        }
+
+        .sidebar.hidden + main {
+            margin-left: 0;
+        }
+
+        /* Style for Toggle Sidebar Icon */
+        .toggle-sidebar {
+            background-color: transparent;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            display: block;
+        }
+
+        .toggle-sidebar .bar {
+            width: 25px;
+            height: 3px;
+            background-color: #0f0;
+            margin: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-sidebar.active .bar:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .toggle-sidebar.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .toggle-sidebar.active .bar:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                transform: none;
+                background-color: #333;
+                display: block; /* Show navigation on small screens */
+            }
+
+            .sidebar ul {
+                margin-top: 20px; /* Adjust top margin for first menu item */
+                display: flex;
+                flex-direction: column; /* Stack items vertically */
+            }
+
+            .sidebar li {
+                margin-bottom: 10px;
+                width: 100%; /* Full width for each item */
+            }
+
+            .sidebar a {
+                padding: 10px;
+                text-align: center; /* Center text */
+            }
+
+            main {
+                margin-left: 0;
+                padding-top: 100px; /* Space for fixed navigation */
+            }
+
+            .toggle-sidebar {
+                display: none; /* Hide toggle button on small screens */
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul>
+            <li style="margin-top: 20px;"><a href="index.html" onclick="loadContent('index.html')">Home</a></li>
+            <li><a href="karya-tulis.html" onclick="loadContent('karya-tulis.html')">Catatan</a></li>
+            <li><a href="bahan-ajar.html" onclick="loadContent('bahan-ajar.html')">Learning</a></li>
+            <li><a href="bank-soal.html" onclick="loadContent('bank-soal.html')">Bank Soal</a></li>
+            <li><a href="kegiatan-sekolah.html" onclick="loadContent('kegiatan-sekolah.html')">Kegiatan kampus</a></li>
+            <li><a href="tutorial.html" onclick="loadContent('tutorial.html')">Tutorial</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" class="bg-gray-100 min-h-screen">
+        <div class="container mx-auto p-4">
+            <h1 class="text-2xl font-bold mb-4 text-center">Learning</h1>
+            <form id="bahanAjarForm" class="space-y-4">
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700">Judul</label>
+                    <input type="text" id="title" name="title"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        required>
+                </div>
+                <div>
+                    <label for="file" class="block text-sm font-medium text-gray-700">Upload File</label>
+                    <input type="file" id="file" name="file"
+                        accept=".pdf, .doc, .docx, .txt, .ppt, .xls, .xlsx, .pptx, .jpg, .jpeg, .png"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <button type="submit"
+                    class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Simpan</button>
+            </form>
+            <h2 id="bahanAjar" class="text-xl font-bold mt-6 mb-4 text-center">Daftar Learning</h2>
+            <div id="bahanAjarList" class="space-y-4"></div>
+        </div>
+    </main>
+
+    <!-- Toggle Sidebar Icon -->
+    <div class="toggle-sidebar" onclick="toggleSidebar()">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAe7DiRe54EYdR4g5eflnBOxWFiGvAu34c",
+            authDomain: "risky-f2de4.firebaseapp.com",
+            databaseURL: "https://risky-f2de4-default-rtdb.firebaseio.com",
+            projectId: "risky-f2de4",
+            storageBucket: "risky-f2de4.appspot.com",
+            messagingSenderId: "70573427034",
+            appId: "1:70573427034:web:85ee8f762992016d310b63",
+            measurementId: "G-4L76NDRV8E"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Function to toggle sidebar visibility
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleButton = document.querySelector('.toggle-sidebar');
+            sidebar.classList.toggle('hidden');
+            toggleButton.classList.toggle('active');
+        }
+
+        // Function to load saved teaching materials from Firestore
+        function loadMaterials() {
+            db.collection("teachingMaterials").get().then((querySnapshot) => {
+                const bahanAjarList = document.getElementById('bahanAjarList');
+                bahanAjarList.innerHTML = ''; // Clear previous list
+
+                querySnapshot.forEach((doc) => {
+                    const material = doc.data();
+                    const materialElement = document.createElement('div');
+                    materialElement.className = 'p-4 bg-gray-200 rounded-md';
+                    materialElement.innerHTML = `
+                        <h3 class="text-lg font-bold">${material.title}</h3>
+                        ${material.fileUrl ? `<a href="${material.fileUrl}" class="block text-blue-600 hover:underline mt-2" target="_blank">Download File</a>` : ''}
+                        <button data-id="${doc.id}" class="mt-2 bg-red-500 text-white py-1 px-2 rounded-md deleteBtn">Hapus</button>
+                    `;
+                    bahanAjarList.appendChild(materialElement);
+
+                    // Add delete event listener
+                    materialElement.querySelector('.deleteBtn').addEventListener('click', () => {
+                        deleteMaterial(doc.id, material.fileUrl); // Pass fileUrl to deleteMaterial function
+                    });
+                });
+            }).catch((error) => {
+                console.error("Error loading materials: ", error);
+            });
+        }
+
+        // Function to save teaching material and upload file to Firestore
+        function saveMaterial(event) {
+    event.preventDefault();
+
+    const formData = new FormData(bahanAjarForm);
+    const title = formData.get('title');
+    const file = formData.get('file');
+
+    if (!title) {
+        alert('Judul harus diisi.');
+        return;
+    }
+
+    const confirmationCode = prompt('Masukkan kode konfirmasi untuk menyimpan:');
+    if (confirmationCode !== 'sky') { // Ganti 'sky' dengan kode yang Anda tetapkan
+        alert('Kode konfirmasi salah. Penyimpanan dibatalkan.');
+        return;
+    }
+
+    const data = { title };
+
+    if (file) {
+        const storageRef = storage.ref();
+        const fileName = `${new Date().getTime()}_${file.name}`;
+        const fileRef = storageRef.child(fileName);
+
+        fileRef.put(file).then(() => {
+            fileRef.getDownloadURL().then((url) => {
+                data.fileUrl = url;
+                saveToFirestore(data);
+            }).catch((error) => {
+                console.error("Error getting download URL: ", error);
+            });
+        }).catch((error) => {
+            console.error("Error uploading file: ", error);
+        });
+    } else {
+        saveToFirestore(data);
+    }
+}
+
+
+        // Function to save data to Firestore
+        function saveToFirestore(data) {
+            db.collection("teachingMaterials").add(data)
+                .then(() => {
+                    alert('Bahan ajar berhasil disimpan.');
+                    bahanAjarForm.reset(); // Clear form after successful save
+                    loadMaterials(); // Reload materials list
+                })
+                .catch((error) => {
+                    console.error("Error adding document: ", error);
+                });
+        }
+
+        // Function to delete teaching material from Firestore
+        function deleteMaterial(id, fileUrl) {
+            const confirmationCode = prompt('Masukkan kode konfirmasi untuk menghapus:');
+            if (confirmationCode !== 'sky') { // Ganti 'sky' dengan kode yang Anda tetapkan
+                alert('Kode konfirmasi salah. Penghapusan dibatalkan.');
+                return;
+            }
+
+            // Delete file from Storage if fileUrl exists
+            if (fileUrl) {
+                const storageRef = storage.refFromURL(fileUrl);
+                storageRef.delete().then(() => {
+                    console.log("File deleted successfully from Storage.");
+                }).catch((error) => {
+                    console.error("Error deleting file from Storage: ", error);
+                });
+            }
+
+            // Delete document from Firestore
+            db.collection("teachingMaterials").doc(id).delete().then(() => {
+                loadMaterials(); // Reload materials list
+            }).catch((error) => {
+                console.error("Error removing document: ", error);
+            });
+        }
+
+        // Load teaching materials on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMaterials();
+            bahanAjarForm.addEventListener('submit', saveMaterial);
+        });
+    </script>
+</body>
+
+</html>
