@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kegiatan Sekolah</title>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    /* Styling for the sidebar and main content */
+    body {
+         font-family: Arial, sans-serif;
+         line-height: 1.6;
+         margin: 0;
+         padding: 0;
+         display: flex;
+         flex-direction: column; /* Make sure body is column layout */
+         min-height: 100vh; /* Ensure full height of viewport */
+     }
+
+     .sidebar {
+         width: 200px;
+         background-color: #333;
+         color: #fff;
+         padding: 20px;
+         box-sizing: border-box;
+         position: fixed;
+         top: 0;
+         left: 0;
+         height: 100%;
+         transition: transform 0.3s ease;
+         overflow-x: hidden;
+     }
+
+     .sidebar.hidden {
+         transform: translateX(-200px);
+     }
+
+     .sidebar ul {
+         list-style-type: none;
+         padding: 0;
+         margin: 0;
+     }
+
+     .sidebar li {
+         margin-bottom: 10px;
+     }
+
+     .sidebar a {
+         color: #fff;
+         text-decoration: none;
+         display: block;
+         padding: 10px;
+         border-radius: 5px;
+     }
+
+     .sidebar a:hover {
+         background-color: #555;
+     }
+
+     main {
+         flex: 1;
+         padding: 20px;
+         transition: margin-left 0.3s ease;
+         margin-left: 200px;
+         overflow-x: hidden;
+     }
+
+     .sidebar.hidden + main {
+         margin-left: 0;
+     }
+
+     /* Style for Toggle Sidebar Icon */
+     .toggle-sidebar {
+         background-color: transparent;
+         border: none;
+         padding: 10px;
+         cursor: pointer;
+         position: fixed;
+         top: 10px;
+         left: 10px;
+         z-index: 1000;
+         display: block;
+     }
+
+     .toggle-sidebar .bar {
+         width: 25px;
+         height: 3px;
+         background-color: #0f0;
+         margin: 5px;
+         transition: transform 0.3s ease;
+     }
+
+     .toggle-sidebar.active .bar:nth-child(1) {
+         transform: rotate(45deg) translate(5px, 5px);
+     }
+
+     .toggle-sidebar.active .bar:nth-child(2) {
+         opacity: 0;
+     }
+
+     .toggle-sidebar.active .bar:nth-child(3) {
+         transform: rotate(-45deg) translate(7px, -6px);
+     }
+
+     @media (max-width: 768px) {
+         .sidebar {
+             width: 100%;
+             height: auto;
+             position: static;
+             transform: none;
+             background-color: #333;
+             display: block; /* Show navigation on small screens */
+         }
+
+         .sidebar ul {
+             margin-top: 20px; /* Adjust top margin for first menu item */
+             display: flex;
+             flex-direction: column; /* Stack items vertically */
+         }
+
+         .sidebar li {
+             margin-bottom: 10px;
+             width: 100%; /* Full width for each item */
+         }
+
+         .sidebar a {
+             padding: 10px;
+             text-align: center; /* Center text */
+         }
+
+         main {
+             margin-left: 0;
+             padding-top: 100px; /* Space for fixed navigation */
+         }
+
+         .toggle-sidebar {
+             display: none; /* Hide toggle button on small screens */
+         }
+     }
+ </style>
+  <style>
+    .hidden { display: none; }
+    .flex { display: flex; }
+    .fixed { position: fixed; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .min-h-screen { min-height: 100vh; }
+    .z-10 { z-index: 10; }
+    .overflow-y-auto { overflow-y: auto; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .max-w-sm { max-width: 24rem; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="sidebar" id="sidebar">
+    <ul>
+        <li style="margin-top: 20px;"><a href="home.html" onclick="loadContent('home.html')">Home</a></li>
+        <li><a href="karya-tulis.html" onclick="loadContent('karya-tulis.html')">Karya Tulis</a></li>
+        <li><a href="bahan-ajar.html" onclick="loadContent('bahan-ajar.html')">Bahan Ajar</a></li>
+        <li><a href="bank-soal.html" onclick="loadContent('bank-soal.html')">Bank Soal</a></li>
+        <li><a href="kegiatan-sekolah.html" onclick="loadContent('kegiatan-sekolah.html')">Kegiatan Sekolah</a></li>
+        <li><a href="tutorial.html" onclick="loadContent('tutorial.html')">Tutorial</a></li>
+    </ul>
+  </div>
+  <main id="main-content" class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto py-8">
+      <h2 class="text-3xl font-bold mb-4 text-center text-blue-600">Kegiatan Sekolah</h2>
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <form id="upload-form">
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="photo">Foto Kegiatan:</label>
+            <input type="file" id="photo" accept="image/*" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="description">Keterangan:</label>
+            <textarea id="description" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+          </div>
+          <div class="flex items-center justify-between">
+            <button type="button" onclick="showUploadPrompt()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">Unggah</button>
+          </div>
+        </form>
+      </div>
+      <div id="gallery" class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+
+    <!-- Modal -->
+    <div id="code-modal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-auto">
+          <h3 class="text-xl mb-4">Masukkan Kode</h3>
+          <input type="password" id="auth-code" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4" placeholder="Kode">
+          <div class="flex justify-end">
+            <button onclick="hideUploadPrompt()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">Batal</button>
+            <button onclick="validateCode()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 ml-2 rounded focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">Unggah</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <button onclick="toggleSidebar()" class="toggle-sidebar" aria-label="Toggle Sidebar">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </button>
+
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyAe7DiRe54EYdR4g5eflnBOxWFiGvAu34c",
+      authDomain: "risky-f2de4.firebaseapp.com",
+      projectId: "risky-f2de4",
+      storageBucket: "risky-f2de4.appspot.com",
+      messagingSenderId: "70573427034",
+      appId: "1:70573427034:web:85ee8f762992016d310b63",
+      measurementId: "G-4L76NDRV8E"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const storage = firebase.storage();
+    const firestore = firebase.firestore();
+
+    const gallery = document.getElementById('gallery');
+    const uploadForm = document.getElementById('upload-form');
+    const photoInput = document.getElementById('photo');
+    const descriptionInput = document.getElementById('description');
+
+    // Function to toggle sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('hidden');
+    }
+
+    // Function to load content into main area
+    function loadContent(page) {
+      const mainContent = document.getElementById('main-content');
+      fetch(page)
+        .then(response => response.text())
+        .then(data => {
+          mainContent.innerHTML = data;
+          if (page === 'kegiatan-sekolah.html') {
+            setupGallery();
+          }
+        })
+        .catch(error => console.log('Error loading content:', error));
+    }
+
+    // Function to setup gallery
+    function setupGallery() {
+      gallery.innerHTML = ''; // Clear gallery first
+      firestore.collection('kegiatan').get()
+        .then(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const imageUrl = data.imageUrl;
+            const description = data.description;
+            const card = `
+              <div class="bg-white p-4 rounded-lg shadow-lg">
+                <img src="${imageUrl}" alt="Kegiatan Sekolah" class="w-full h-auto mb-2 rounded">
+                <p class="text-gray-700">${description}</p>
+                <button onclick="showDeletePrompt('${doc.id}')" class="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">Hapus</button>
+              </div>
+            `;
+            gallery.innerHTML += card;
+          });
+        })
+        .catch(error => console.error('Error getting documents:', error));
+    }
+
+    // Function to show upload prompt
+    function showUploadPrompt() {
+      document.getElementById('code-modal').classList.remove('hidden');
+    }
+
+    // Function to hide upload prompt
+    function hideUploadPrompt() {
+      document.getElementById('code-modal').classList.add('hidden');
+    }
+
+    // Function to validate code and upload photo
+    function validateCode() {
+      const authCode = document.getElementById('auth-code').value;
+      if (authCode === 'risky') { // Replace 'your_secret_code' with your actual verification code
+        hideUploadPrompt();
+        uploadPhoto();
+      } else {
+        alert('Kode tidak valid.');
+      }
+    }
+
+    // Function to upload photo
+    function uploadPhoto() {
+      const file = photoInput.files[0];
+      const description = descriptionInput.value;
+
+      const storageRef = storage.ref();
+      const photoRef = storageRef.child('kegiatan/' + file.name);
+
+      photoRef.put(file)
+        .then(snapshot => snapshot.ref.getDownloadURL())
+        .then(url => {
+          // Save image URL and description to Firestore
+          return firestore.collection('kegiatan').add({
+            imageUrl: url,
+            description: description
+          });
+        })
+        .then(() => {
+          // Reload gallery after upload
+          setupGallery();
+          photoInput.value = '';
+          descriptionInput.value = '';
+          alert('Foto berhasil diunggah.');
+        })
+        .catch(error => {
+          console.error('Error uploading photo:', error);
+          alert('Terjadi kesalahan saat mengunggah foto.');
+        });
+    }
+
+    // Function to show delete prompt
+    function showDeletePrompt(docId) {
+      const authCode = prompt('Masukkan kode untuk menghapus:');
+      if (authCode === 'risky') { // Replace 'your_secret_code' with your actual verification code
+        deletePhoto(docId);
+      } else {
+        alert('Kode tidak valid.');
+      }
+    }
+
+    // Function to delete photo
+    function deletePhoto(docId) {
+      firestore.collection('kegiatan').doc(docId).delete()
+        .then(() => {
+          setupGallery();
+          alert('Foto berhasil dihapus.');
+        })
+        .catch(error => {
+          console.error('Error deleting photo:', error);
+          alert('Terjadi kesalahan saat menghapus foto.');
+        });
+    }
+
+    // Initial setup
+    setupGallery();
+  </script>
+</body>
+</html>
