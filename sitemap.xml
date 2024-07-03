@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://risky.web.id/index.html</loc>
+        <lastmod>2024-07-03</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://risky.web.id/karya-tulis.html</loc>
+        <lastmod>2024-07-03</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+     <url>
+        <loc>https://risky.web.id/kegiatan-sekolah.html</loc>
+        <lastmod>2024-07-03</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+   <url>
+        <loc>https://risky.web.id/bank-soal.html</loc>
+        <lastmod>2024-07-03</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+   <url>
+        <loc>https://risky.web.id/bahan-ajar.html</loc>
+        <lastmod>2024-07-03</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+</urlset>
