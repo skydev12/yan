@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karya Tulis</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-storage.js"></script>
+    <style>
+        /* Styling for the sidebar and main content */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            transition: transform 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-200px);
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .sidebar a:hover {
+            background-color: #555;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-left: 200px;
+            overflow-x: hidden;
+        }
+
+        .sidebar.hidden + main {
+            margin-left: 0;
+        }
+
+        /* Style for Toggle Sidebar Icon */
+        .toggle-sidebar {
+            background-color: transparent;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            display: block;
+        }
+
+        .toggle-sidebar .bar {
+            width: 25px;
+            height: 3px;
+            background-color: #9557e6;
+            margin: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-sidebar.active .bar:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .toggle-sidebar.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .toggle-sidebar.active .bar:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                transform: none;
+                background-color: #333;
+                display: block;
+            }
+
+            .sidebar ul {
+                margin-top: 20px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .sidebar li {
+                margin-bottom: 10px;
+                width: 100%;
+            }
+
+            .sidebar a {
+                padding: 10px;
+                text-align: center;
+            }
+
+            main {
+                margin-left: 0;
+                padding-top: 100px;
+            }
+
+            .toggle-sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul>
+            <!-- Menu items -->
+            <li style="margin-top: 20px;"><a href="index.html" onclick="loadContent('index.html')">Home</a></li>
+            <li><a href="karya-tulis.html" onclick="loadContent('karya-tulis.html')">Catatan</a></li>
+            <li><a href="bahan-ajar.html" onclick="loadContent('bahan-ajar.html')">Learning</a></li>
+            <li><a href="bank-soal.html" onclick="loadContent('bank-soal.html')">Bank Soal</a></li>
+            <li><a href="kegiatan-sekolah.html" onclick="loadContent('kegiatan-sekolah.html')">Kegiatan kampus</a></li>
+            <li><a href="tutorial.html" onclick="loadContent('tutorial.html')">Tutorial</a></li>
+        </ul>
+    </div>
+    <!-- Main content -->
+    <main id="main-content" class="bg-gray-100 min-h-screen">
+        <div class="container mx-auto p-4">
+            <h1 class="text-2xl font-bold mb-4 text-center">Catatan</h1>
+            <form id="karyaTulisForm" class="space-y-4">
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700">Judul</label>
+                    <input type="text" id="title" name="title"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        required>
+                </div>
+                <div>
+                    <label for="content" class="block text-sm font-medium text-gray-700">Isi</label>
+                    <textarea id="content" name="content" rows="10"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        required></textarea>
+                </div>
+                <div>
+                    <label for="file" class="block text-sm font-medium text-gray-700">Upload File (Word/PDF)</label>
+                    <input type="file" id="file" name="file" accept=".doc, .docx, .pdf"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <button type="submit"
+                    class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Simpan</button>
+            </form>
+            <h2 id="karyaTulis" class="text-xl font-bold mt-6 mb-4 text-center">Daftar Catatan</h2>
+            <div id="karyaTulisList" class="space-y-4"></div>
+        </div>
+    </main>
+
+    <!-- Toggle Sidebar Button -->
+    <button class="toggle-sidebar" onclick="toggleSidebar()">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </button>
+
+    <script>
+        // Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyAe7DiRe54EYdR4g5eflnBOxWFiGvAu34c",
+            authDomain: "risky-f2de4.firebaseapp.com",
+            databaseURL: "https://risky-f2de4-default-rtdb.firebaseio.com",
+            projectId: "risky-f2de4",
+            storageBucket: "risky-f2de4.appspot.com",
+            messagingSenderId: "70573427034",
+            appId: "1:70573427034:web:85ee8f762992016d310b63",
+            measurementId: "G-4L76NDRV8E"
+        };
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.firestore();
+        var storage = firebase.storage();
+
+        // Show sidebar
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var toggleButton = document.querySelector('.toggle-sidebar');
+            sidebar.classList.toggle('hidden');
+            toggleButton.classList.toggle('active');
+        }
+
+        // Handle form submission for karya tulis
+        document.getElementById('karyaTulisForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Prompt for confirmation with code input
+            var confirmationCode = prompt('Masukkan kode konfirmasi:');
+            if (confirmationCode === '1234') { // Ganti 'kodeAnda' dengan kode yang Anda tetapkan
+                var title = document.getElementById('title').value;
+                var content = document.getElementById('content').value;
+                var fileInput = document.getElementById('file');
+                var file = fileInput.files[0];
+                var fileName = file ? file.name : null;
+
+                // Simpan ke Firebase Firestore
+                db.collection('karya-tulis').add({
+                    title: title,
+                    content: content,
+                    fileName: fileName
+                }).then(function (docRef) {
+                    if (file) {
+                        // Upload file ke Firebase Storage
+                        var storageRef = storage.ref('karya-tulis/' + docRef.id + '/' + file.name);
+                        var uploadTask = storageRef.put(file);
+
+                        uploadTask.on('state_changed', function (snapshot) {
+                            // Progress handler
+                        }, function (error) {
+                            // Error handler
+                            console.error('Upload failed:', error);
+                        }, function () {
+                            // Upload selesai
+                            console.log('File uploaded successfully');
+                            loadKaryaTulis();
+                        });
+                    } else {
+                        loadKaryaTulis();
+                    }
+                }).catch(function (error) {
+                    console.error('Error adding document:', error);
+                });
+            } else {
+                alert('Kode konfirmasi salah. Tindakan dibatalkan.');
+            }
+        });
+
+        // Load and display karya tulis
+        function loadKaryaTulis() {
+            db.collection('karya-tulis').get().then(function (querySnapshot) {
+                var karyaTulisList = document.getElementById('karyaTulisList');
+                karyaTulisList.innerHTML = '';
+                querySnapshot.forEach(function (doc) {
+                    var data = doc.data();
+                    var listItem = document.createElement('div');
+                    listItem.className = 'p-4 bg-white rounded-lg shadow-md';
+                    listItem.innerHTML = `
+                        <h3 class="text-lg font-bold">${data.title}</h3>
+                        <p>${data.content}</p>
+                        ${data.fileName ? `<a href="#" onclick="downloadFile('${doc.id}', '${data.fileName}')" class="text-blue-500 underline">Download File</a>` : ''}
+                        <button onclick="deleteKaryaTulis('${doc.id}', '${data.fileName}')"
+                            class="text-red-500 mt-2">Hapus</button>
+                    `;
+                    karyaTulisList.appendChild(listItem);
+                });
+            });
+        }
+
+        // Download file
+        function downloadFile(docId, fileName) {
+            var storageRef = storage.ref('karya-tulis/' + docId + '/' + fileName);
+            storageRef.getDownloadURL().then(function (url) {
+                var link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.click();
+            }).catch(function (error) {
+                console.error('Error getting download URL:', error);
+            });
+        }
+
+        // Delete karya tulis
+        function deleteKaryaTulis(docId, fileName) {
+            // Prompt for confirmation with code input
+            var confirmationCode = prompt('Masukkan kode konfirmasi untuk menghapus:');
+            if (confirmationCode === '1234') { // Ganti 'kodeAnda' dengan kode yang Anda tetapkan
+                // Hapus dokumen dari Firestore
+                db.collection('karya-tulis').doc(docId).delete().then(function () {
+                    console.log('Document successfully deleted!');
+                    // Hapus file dari Firebase Storage jika ada
+                    if (fileName) {
+                        var storageRef = storage.ref('karya-tulis/' + docId + '/' + fileName);
+                        storageRef.delete().then(function () {
+                            console.log('File successfully deleted!');
+                            loadKaryaTulis();
+                        }).catch(function (error) {
+                            console.error('Error removing file:', error);
+                            loadKaryaTulis();
+                        });
+                    } else {
+                        loadKaryaTulis();
+                    }
+                }).catch(function (error) {
+                    console.error('Error removing document:', error);
+                });
+            } else {
+                alert('Kode konfirmasi salah. Tindakan dibatalkan.');
+            }
+        }
+
+        // Load karya tulis when the page loads
+        window.onload = function () {
+            loadKaryaTulis();
+        };
+    </script>
+</body>
+
+</html>
