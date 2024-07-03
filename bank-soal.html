@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Soal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+    <style>
+       /* Styling for the sidebar and main content */
+       body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column; /* Make sure body is column layout */
+            min-height: 100vh; /* Ensure full height of viewport */
+        }
+
+        .sidebar {
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            transition: transform 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-200px);
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .sidebar a:hover {
+            background-color: #555;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            margin-left: 200px;
+            overflow-x: hidden;
+        }
+
+        .sidebar.hidden + main {
+            margin-left: 0;
+        }
+
+        /* Style for Toggle Sidebar Icon */
+        .toggle-sidebar {
+            background-color: transparent;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            display: block;
+        }
+
+        .toggle-sidebar .bar {
+            width: 25px;
+            height: 3px;
+            background-color: #0f0;
+            margin: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-sidebar.active .bar:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .toggle-sidebar.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .toggle-sidebar.active .bar:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                transform: none;
+                background-color: #333;
+                display: block; /* Show navigation on small screens */
+            }
+
+            .sidebar ul {
+                margin-top: 20px; /* Adjust top margin for first menu item */
+                display: flex;
+                flex-direction: column; /* Stack items vertically */
+            }
+
+            .sidebar li {
+                margin-bottom: 10px;
+                width: 100%; /* Full width for each item */
+            }
+
+            .sidebar a {
+                padding: 10px;
+                text-align: center; /* Center text */
+            }
+
+            main {
+                margin-left: 0;
+                padding-top: 100px; /* Space for fixed navigation */
+            }
+
+            .toggle-sidebar {
+                display: none; /* Hide toggle button on small screens */
+            }
+        }
+    </style>
+</head>
+<div class="sidebar" id="sidebar">
+    <ul>
+        <li style="margin-top: 20px;"><a href="index.html" onclick="loadContent('index.html')">Home</a></li>
+        <li><a href="karya-tulis.html" onclick="loadContent('karya-tulis.html')">Catatan</a></li>
+        <li><a href="bahan-ajar.html" onclick="loadContent('bahan-ajar.html')">Learning</a></li>
+        <li><a href="bank-soal.html" onclick="loadContent('bank-soal.html')">Bank Soal</a></li>
+        <li><a href="kegiatan-sekolah.html" onclick="loadContent('kegiatan-sekolah.html')">Kegiatan kampus</a></li>
+        <li><a href="tutorial.html" onclick="loadContent('tutorial.html')">Tutorial</a></li>
+    </ul>
+</div>
+<main id="main-content" class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100">
+    <div id="loginForm" class="w-1/3 mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 hidden">
+        <h2 class="text-xl font-bold mb-4 text-center">Login</h2>
+        <form id="authForm">
+            <div class="mb-4">
+                <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                <input type="email" id="email" name="email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+            </div>
+            <div class="mb-6">
+                <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                <input type="password" id="password" name="password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" required>
+            </div>
+            <div class="flex items-center justify-between">
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Login
+                </button>
+                <button type="button" id="cancelLogin" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="container mx-auto p-4">
+        <h1 class="text-2xl font-bold mb-4 text-center">Buat Soal Baru</h1>
+        <form id="bankSoalForm" class="space-y-4">
+            <div>
+                <label for="question" class="block text-sm font-medium text-gray-700">Pertanyaan</label>
+                <input type="text" id="question" name="question"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    required>
+            </div>
+            <div>
+                <label for="answerText" class="block text-sm font-medium text-gray-700">Jawaban Teks</label>
+                <input type="text" id="answerText" name="answerText"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <div>
+                <label for="answerImage" class="block text-sm font-medium text-gray-700">Upload Jawaban Gambar (PNG/JPG)</label>
+                <input type="file" id="answerImage" name="answerImage" accept=".png, .jpg, .jpeg"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <button type="submit"
+                class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Simpan</button>
+        </form>
+        <h2 id="bankSoal" class="text-xl font-bold mt-6 mb-4 text-center">Daftar Soal</h2>
+        <div id="bankSoalList" class="space-y-4"></div>
+    </div>
+    
+</main>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggleButton = document.querySelector('.toggle-sidebar');
+        sidebar.classList.toggle('hidden');
+        toggleButton.classList.toggle('active');
+    }
+</script>
+
+<!-- Toggle Sidebar Icon -->
+<div class="toggle-sidebar" onclick="toggleSidebar()">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+</div>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAe7DiRe54EYdR4g5eflnBOxWFiGvAu34c",
+            authDomain: "risky-f2de4.firebaseapp.com",
+            databaseURL: "https://risky-f2de4-default-rtdb.firebaseio.com",
+            projectId: "risky-f2de4",
+            storageBucket: "risky-f2de4.appspot.com",
+            messagingSenderId: "70573427034",
+            appId: "1:70573427034:web:85ee8f762992016d310b63",
+            measurementId: "G-4L76NDRV8E"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const bankSoalForm = document.getElementById('bankSoalForm');
+            const bankSoalList = document.getElementById('bankSoalList');
+
+            // Function to load saved questions from Firestore
+            function loadQuestions() {
+                db.collection("questions").get().then((querySnapshot) => {
+                    bankSoalList.innerHTML = '';
+                    querySnapshot.forEach((doc) => {
+                        const question = doc.data();
+                        const questionElement = document.createElement('div');
+                        questionElement.className = 'p-4 bg-gray-200 rounded-md';
+                        questionElement.innerHTML =
+                            `<h3 class="text-lg font-bold">${question.question}</h3>
+                            ${question.answerText ? `<p>Jawaban Teks: ${question.answerText}</p>` : ''}
+                            ${question.answerImageUrl ? `<img src="${question.answerImageUrl}" class="mt-2 max-w-full h-auto">` : ''}
+                            <button data-id="${doc.id}" class="mt-2 bg-red-500 text-white py-1 px-2 rounded-md deleteBtn">Hapus</button>`;
+                        bankSoalList.appendChild(questionElement);
+
+                        // Add delete event listeners
+                        questionElement.querySelector('.deleteBtn').addEventListener('click', () => {
+                            deleteQuestion(doc.id);
+                        });
+                    });
+                });
+            }
+
+               // Function to save question to Firestore
+function saveQuestion(event) {
+    event.preventDefault();
+
+    // Prompt for confirmation with code input
+    var confirmationCode = prompt('Masukkan kode konfirmasi:');
+    if (confirmationCode !== 'sky') { // Ganti 'kodeAnda' dengan kode yang Anda tetapkan
+        alert('Kode konfirmasi salah. Silakan coba lagi.');
+        return;
+    }
+
+    const formData = new FormData(bankSoalForm);
+    const question = formData.get('question');
+    const answerText = formData.get('answerText');
+    const answerImage = formData.get('answerImage');
+
+    if (!question) {
+        console.error("Pertanyaan harus diisi.");
+        return;
+    }
+
+    const data = {
+        question: question
+    };
+
+    // Check if answerText is provided
+    if (answerText) {
+        data.answerText = answerText;
+    }
+
+    // Check if answerImage is provided
+    if (answerImage) {
+        const storageRef = storage.ref();
+        const fileName = `${new Date().getTime()}_${answerImage.name}`;
+        const fileRef = storageRef.child(fileName);
+        fileRef.put(answerImage).then(() => {
+            fileRef.getDownloadURL().then((url) => {
+                data.answerImageUrl = url;
+                saveToFirestore(data);
+            }).catch((error) => {
+                console.error("Error getting download URL: ", error);
+            });
+        }).catch((error) => {
+            console.error("Error uploading file: ", error);
+        });
+    } else {
+        saveToFirestore(data);
+    }
+}
+
+
+            // Function to save data to Firestore
+            function saveToFirestore(data) {
+                db.collection("questions").add(data)
+                    .then(() => {
+                        loadQuestions();
+                        bankSoalForm.reset();
+                    })
+                    .catch((error) => {
+                        console.error("Error adding document: ", error);
+                    });
+            }
+
+            function deleteQuestion(id) {
+    // Prompt for confirmation with code input
+    var confirmationCode = prompt('Masukkan kode konfirmasi:');
+    if (confirmationCode !== 'sky') { // Ganti 'kodeAnda' dengan kode yang Anda tetapkan
+        alert('Kode konfirmasi salah. Silakan coba lagi.');
+        return;
+    }
+
+    db.collection("questions").doc(id).delete().then(() => {
+        loadQuestions();
+    }).catch((error) => {
+        console.error("Error removing document: ", error);
+    });
+}
+
+            // Load questions on page load
+            loadQuestions();
+            bankSoalForm.addEventListener('submit', saveQuestion);
+        });
+    </script>
+</body>
+
+</html>
