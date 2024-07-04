@@ -17,7 +17,7 @@
             flex-direction: column; /* Make sure body is column layout */
             min-height: 100vh; /* Ensure full height of viewport */
         }
-
+    
         .sidebar {
             width: 200px;
             background-color: #333;
@@ -31,21 +31,21 @@
             transition: transform 0.3s ease;
             overflow-x: hidden;
         }
-
+    
         .sidebar.hidden {
             transform: translateX(-200px);
         }
-
+    
         .sidebar ul {
             list-style-type: none;
             padding: 0;
             margin: 0;
         }
-
+    
         .sidebar li {
             margin-bottom: 10px;
         }
-
+    
         .sidebar a {
             color: #fff;
             text-decoration: none;
@@ -53,11 +53,11 @@
             padding: 10px;
             border-radius: 5px;
         }
-
+    
         .sidebar a:hover {
             background-color: #555;
         }
-
+    
         main {
             flex: 1;
             padding: 20px;
@@ -65,11 +65,11 @@
             margin-left: 200px;
             overflow-x: hidden;
         }
-
+    
         .sidebar.hidden + main {
             margin-left: 0;
         }
-
+    
         /* Style for Toggle Sidebar Icon */
         .toggle-sidebar {
             background-color: transparent;
@@ -82,7 +82,7 @@
             z-index: 1000;
             display: block;
         }
-
+    
         .toggle-sidebar .bar {
             width: 25px;
             height: 3px;
@@ -90,19 +90,19 @@
             margin: 5px;
             transition: transform 0.3s ease;
         }
-
+    
         .toggle-sidebar.active .bar:nth-child(1) {
             transform: rotate(45deg) translate(5px, 5px);
         }
-
+    
         .toggle-sidebar.active .bar:nth-child(2) {
             opacity: 0;
         }
-
+    
         .toggle-sidebar.active .bar:nth-child(3) {
             transform: rotate(-45deg) translate(7px, -6px);
         }
-
+    
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -112,37 +112,57 @@
                 background-color: #333;
                 display: block; /* Show navigation on small screens */
             }
-
+    
             .sidebar ul {
                 margin-top: 20px; /* Adjust top margin for first menu item */
                 display: flex;
                 flex-direction: column; /* Stack items vertically */
             }
-
+    
             .sidebar li {
                 margin-bottom: 10px;
                 width: 100%; /* Full width for each item */
             }
-
+    
             .sidebar a {
                 padding: 10px;
                 text-align: center; /* Center text */
             }
-
+    
             main {
                 margin-left: 0;
                 padding-top: 100px; /* Space for fixed navigation */
             }
-
+    
             .toggle-sidebar {
                 display: none; /* Hide toggle button on small screens */
             }
         }
+    
+        /* Custom background image */
+        #backgroundp {
+            background-image: url('pb.jpg'); /* Ganti dengan path gambar PNG Anda */
+            background-size: cover;
+            background-position: center;
+            padding: 40px; /* Sesuaikan padding sesuai kebutuhan */
+        }
+    
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1); /* Latar belakang semi-transparan */
+            backdrop-filter: blur(10px); /* Efek blur */
+            -webkit-backdrop-filter: blur(10px); /* Efek blur untuk Safari */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Border semi-transparan */
+            border-radius: 10px; /* Sudut border */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Bayangan */
+            padding: 10px; /* Padding */
+        }
     </style>
+    
 </head>
 
 <body>
-    <div class="sidebar" id="sidebar">
+    <section id="backgroundp" >
+    <div class="sidebar shadow-md rounded-lg p-6 glass-effect" id="sidebar">
         <ul>
             <li style="margin-top: 20px;"><a href="index.html" onclick="loadContent('index.html')">Home</a></li>
             <li><a href="karya-tulis.html" onclick="loadContent('karya-tulis.html')">Catatan</a></li>
@@ -153,39 +173,39 @@
         </ul>
     </div>
 
-    <main id="main-content" class="bg-gray-100 min-h-screen">
+    <main id="main-content" class="shadow-md rounded-lg p-6">
         <div class="container mx-auto p-8">
             <header class="mb-8">
                 <h1 class="text-4xl font-bold text-center text-green-500">Biodata Saya</h1>
             </header>
             
             <section id="profile" class="mb-12">
-                <div class="bg-white shadow-md rounded-lg p-6">
-                    <h2 class="text-2xl font-semibold mb-4">Profil</h2>
+                <div class="glass-effect shadow-md rounded-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-4 text-blue-600">Profil</h2>
                     <div class="flex items-center">
-                        <img src="profile-pic.jpg" alt="Foto Profil" class="w-32 h-32 rounded-full mr-6">
+                        <img src="profil.jpg" alt="Foto Profil" class="w-32 h-32 rounded-full mr-6">
                         <div>
-                            <h3 class="text-xl font-bold">RISKY DARLIS</h3>
-                            <p class="text-gray-700">STATISTIKA</p>
-                            <p class="text-gray-700">UNIVERSITAS NEGERI PADANG</p>
+                            <h3 class="text-xl font-bold text-yellow-600">RISKY DARLIS</h3>
+                            <p class="text-yellow-400">STATISTIKA</p>
+                            <p class="text-yellow-400">UNIVERSITAS NEGERI PADANG</p>
                         </div>
                     </div>
                 </div>
             </section>
 
             <section id="background" class="mb-12">
-                <div class="bg-white shadow-md rounded-lg p-6">
+                <div class="glass-effect shadow-md rounded-lg p-6">
                     <h2 class="text-2xl font-semibold mb-4">Latar Belakang</h2>
-                    <p class="text-gray-700">
+                    <p class="text-yellow-400">
                        ini masih dalam tahap pengembangan 
                  </p>
                 </div>
             </section>
 
             <section id="education" class="mb-12">
-                <div class="bg-white shadow-md rounded-lg p-6">
+                <div class="glass-effect shadow-md rounded-lg p-6">
                     <h2 class="text-2xl font-semibold mb-4">Jenjang Pendidikan</h2>
-                    <ul class="list-disc pl-5 text-gray-700">
+                    <ul class="list-disc pl-5 text-yellow-400">
                         <li>
                             <strong>Sekolah Dasar</strong> - SDN 01 Lubuk Alung,  (tahun 2011-2016.)
                         </li>
@@ -206,7 +226,7 @@
             </section>
         </div>
     </main>
-
+</section>
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
