@@ -11,358 +11,342 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      box-sizing: border-box;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      transition: transform 0.3s ease;
+      overflow-x: hidden;
+    }
+
+    .sidebar.hidden {
+      transform: translateX(-200px);
+    }
+
+    .sidebar ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar li {
+      margin-bottom: 10px;
+    }
+
+    .sidebar a {
+      color: #fff;
+      text-decoration: none;
+      display: block;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .sidebar a:hover {
+      background-color: #555;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+      margin-left: 200px;
+      overflow-x: hidden;
+    }
+
+    .sidebar.hidden + main {
+      margin-left: 0;
+    }
+
+    .toggle-sidebar {
+      background-color: transparent;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      display: block;
+    }
+
+    .toggle-sidebar .bar {
+      width: 25px;
+      height: 3px;
+      background-color: #0f0;
+      margin: 5px;
+      transition: transform 0.3s ease;
+    }
+
+    .toggle-sidebar.active .bar:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .toggle-sidebar.active .bar:nth-child(2) {
+      opacity: 0;
+    }
+
+    .toggle-sidebar.active .bar:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -6px);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        transform: none;
+        background-color: #333;
+        display: block;
+      }
+
+      .sidebar ul {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar li {
+        margin-bottom: 10px;
+        width: 100%;
+      }
+
+      .sidebar a {
+        padding: 10px;
+        text-align: center;
+      }
+
+      main {
+        margin-left: 0;
+        padding-top: 100px;
+      }
+
+      .toggle-sidebar {
+        display: none;
+      }
+    }
+  </style>
 </head>
-<style>
-  /* Styling for the sidebar and main content */
-  body {
-       font-family: Arial, sans-serif;
-       line-height: 1.6;
-       margin: 0;
-       padding: 0;
-       display: flex;
-       flex-direction: column; /* Make sure body is column layout */
-       min-height: 100vh; /* Ensure full height of viewport */
-   }
 
-   .sidebar {
-       width: 200px;
-       background-color: #333;
-       color: #fff;
-       padding: 20px;
-       box-sizing: border-box;
-       position: fixed;
-       top: 0;
-       left: 0;
-       height: 100%;
-       transition: transform 0.3s ease;
-       overflow-x: hidden;
-   }
-
-   .sidebar.hidden {
-       transform: translateX(-200px);
-   }
-
-   .sidebar ul {
-       list-style-type: none;
-       padding: 0;
-       margin: 0;
-   }
-
-   .sidebar li {
-       margin-bottom: 10px;
-   }
-
-   .sidebar a {
-       color: #fff;
-       text-decoration: none;
-       display: block;
-       padding: 10px;
-       border-radius: 5px;
-   }
-
-   .sidebar a:hover {
-       background-color: #555;
-   }
-
-   main {
-       flex: 1;
-       padding: 20px;
-       transition: margin-left 0.3s ease;
-       margin-left: 200px;
-       overflow-x: hidden;
-   }
-
-   .sidebar.hidden + main {
-       margin-left: 0;
-   }
-
-   /* Style for Toggle Sidebar Icon */
-   .toggle-sidebar {
-       background-color: transparent;
-       border: none;
-       padding: 10px;
-       cursor: pointer;
-       position: fixed;
-       top: 10px;
-       left: 10px;
-       z-index: 1000;
-       display: block;
-   }
-
-   .toggle-sidebar .bar {
-       width: 25px;
-       height: 3px;
-       background-color: #0f0;
-       margin: 5px;
-       transition: transform 0.3s ease;
-   }
-
-   .toggle-sidebar.active .bar:nth-child(1) {
-       transform: rotate(45deg) translate(5px, 5px);
-   }
-
-   .toggle-sidebar.active .bar:nth-child(2) {
-       opacity: 0;
-   }
-
-   .toggle-sidebar.active .bar:nth-child(3) {
-       transform: rotate(-45deg) translate(7px, -6px);
-   }
-
-   @media (max-width: 768px) {
-       .sidebar {
-           width: 100%;
-           height: auto;
-           position: static;
-           transform: none;
-           background-color: #333;
-           display: block; /* Show navigation on small screens */
-       }
-
-       .sidebar ul {
-           margin-top: 20px; /* Adjust top margin for first menu item */
-           display: flex;
-           flex-direction: column; /* Stack items vertically */
-       }
-
-       .sidebar li {
-           margin-bottom: 10px;
-           width: 100%; /* Full width for each item */
-       }
-
-       .sidebar a {
-           padding: 10px;
-           text-align: center; /* Center text */
-       }
-
-       main {
-           margin-left: 0;
-           padding-top: 100px; /* Space for fixed navigation */
-       }
-
-       .toggle-sidebar {
-           display: none; /* Hide toggle button on small screens */
-       }
-   }
-</style>
-<div class="sidebar" id="sidebar">
-  <ul>
-    <li style="margin-top: 20px;"><a href="index.html" onclick="loadContent('index.html')">Home</a></li>
-    <li><a href="karya-tulis.html" onclick="loadContent('karya-tulis.html')">Catatan</a></li>
-    <li><a href="bahan-ajar.html" onclick="loadContent('bahan-ajar.html')">Learning</a></li>
-    <li><a href="bank-soal.html" onclick="loadContent('bank-soal.html')">Bank Soal</a></li>
-    <li><a href="kegiatan-sekolah.html" onclick="loadContent('kegiatan-sekolah.html')">Kegiatan kampus</a></li>
-    <li><a href="tutorial.html" onclick="loadContent('tutorial.html')">Tutorial</a></li>
-  </ul>
-</div>
-<main id="main-content" class="bg-gray-100 min-h-screen">
 <body class="bg-gray-100">
-  <div class="container mx-auto py-8">
-    <h2 class="text-3xl font-bold mb-4 text-center">Tambah Tutorial</h2>
-    <div class="bg-white p-6 rounded-lg shadow-lg">
-      <form id="upload-form">
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="title">Judul:</label>
-          <input type="text" id="title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        </div>
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="image">Gambar (opsional):</label>
-          <input type="file" id="image" accept="image/*" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        </div>
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="imageWidth">Lebar Gambar (opsional, px):</label>
-          <input type="number" id="imageWidth" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        </div>
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="imageHeight">Tinggi Gambar (opsional, px):</label>
-          <input type="number" id="imageHeight" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        </div>
-        <div class="mb-4">
-          <label class="block text-gray-700 text-sm font-bold mb-2" for="content">Isi:</label>
-          <textarea id="content" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-        </div>
-        <div class="flex items-center justify-between">
-          <button type="button" onclick="showUploadPrompt()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Unggah</button>
-        </div>
-      </form>
-    </div>
-    <div id="tutorials" class="mt-8"></div>
+  <div class="sidebar" id="sidebar">
+    <ul>
+      <li style="margin-top: 20px;"><a href="index.html" onclick="loadContent('index.html')">Home</a></li>
+      <li><a href="karya-tulis.html" onclick="loadContent('karya-tulis.html')">Catatan</a></li>
+      <li><a href="bahan-ajar.html" onclick="loadContent('bahan-ajar.html')">Learning</a></li>
+      <li><a href="bank-soal.html" onclick="loadContent('bank-soal.html')">Bank Soal</a></li>
+      <li><a href="kegiatan-sekolah.html" onclick="loadContent('kegiatan-sekolah.html')">Kegiatan kampus</a></li>
+      <li><a href="tutorial.html" onclick="loadContent('tutorial.html')">Tutorial</a></li>
+    </ul>
   </div>
-  
 
-  <!-- Modal -->
-  <div id="code-modal" class="fixed z-10 inset-0 overflow-y-auto hidden">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-auto">
-        <h3 class="text-xl mb-4">Masukkan Kode Verifikasi</h3>
-        <input type="password" id="auth-code" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4" placeholder="Kode">
-        <button onclick="validateCode()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit</button>
+  <main id="main-content" class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto py-8">
+      <h2 class="text-3xl font-bold mb-4 text-center">Tambah Tutorial</h2>
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <form id="upload-form">
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="title">Judul:</label>
+            <input type="text" id="title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="image">Gambar (opsional):</label>
+            <input type="file" id="image" accept="image/*" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="imageWidth">Lebar Gambar (opsional, px):</label>
+            <input type="number" id="imageWidth" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="imageHeight">Tinggi Gambar (opsional, px):</label>
+            <input type="number" id="imageHeight" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="content">Isi:</label>
+            <textarea id="content" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+          </div>
+          <div class="flex items-center justify-between">
+            <button type="button" onclick="showUploadPrompt()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Unggah</button>
+          </div>
+        </form>
+      </div>
+      <div id="tutorials" class="mt-8"></div>
+    </div>
+
+    <!-- Modal Edit -->
+    <div id="edit-modal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-auto">
+          <h3 class="text-xl mb-4">Edit Tutorial</h3>
+          <input type="password" id="edit-auth-code" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4" placeholder="Kode">
+          <input type="text" id="edit-title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4" placeholder="Judul">
+          <textarea id="edit-content" rows="5" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4" placeholder="Isi"></textarea>
+          <button onclick="validateEditCode()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit</button>
+        </div>
       </div>
     </div>
-  </div>
-</main>
-<script>
-  function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const toggleButton = document.querySelector('.toggle-sidebar');
-      sidebar.classList.toggle('hidden');
-      toggleButton.classList.toggle('active');
-  }
-</script>
 
-<!-- Toggle Sidebar Icon -->
-<div class="toggle-sidebar" onclick="toggleSidebar()">
-  <div class="bar"></div>
-  <div class="bar"></div>
-  <div class="bar"></div>
-</div>
+    <!-- Modal Kode -->
+    <div id="code-modal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-auto">
+          <h3 class="text-xl mb-4">Masukkan Kode</h3>
+          <input type="password" id="auth-code" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4" placeholder="Kode">
+          <button onclick="validateCode()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="toggle-sidebar" onclick="toggleSidebar()">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </button>
+  </main>
+
   <script>
     // Firebase configuration
-    const firebaseConfig = {
+    var firebaseConfig = {
       apiKey: "AIzaSyAe7DiRe54EYdR4g5eflnBOxWFiGvAu34c",
-            authDomain: "risky-f2de4.firebaseapp.com",
-            databaseURL: "https://risky-f2de4-default-rtdb.firebaseio.com",
-            projectId: "risky-f2de4",
-            storageBucket: "risky-f2de4.appspot.com",
-            messagingSenderId: "70573427034",
-            appId: "1:70573427034:web:85ee8f762992016d310b63",
-            measurementId: "G-4L76NDRV8E"
+      authDomain: "risky-f2de4.firebaseapp.com",
+      databaseURL: "https://risky-f2de4-default-rtdb.firebaseio.com",
+      projectId: "risky-f2de4",
+      storageBucket: "risky-f2de4.appspot.com",
+      messagingSenderId: "70573427034",
+      appId: "1:70573427034:web:85ee8f762992016d310b63",
+      measurementId: "G-4L76NDRV8E"
     };
-
-    const AUTH_CODE = "1234"; // Ganti dengan kode rahasia Anda
-
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-    const storage = firebase.storage();
-    const db = firebase.firestore();
+    var db = firebase.firestore();
+    var storage = firebase.storage();
 
-    let currentAction = null;
+    let currentAction = '';
+    let currentDocId = '';
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('hidden');
+    }
 
     function showUploadPrompt() {
       currentAction = 'upload';
       document.getElementById('code-modal').classList.remove('hidden');
     }
 
+    function showEditPrompt(docId, title, content) {
+      currentAction = 'edit';
+      currentDocId = docId;
+      document.getElementById('edit-title').value = title;
+      document.getElementById('edit-content').value = content;
+      document.getElementById('edit-modal').classList.remove('hidden');
+    }
+
     function validateCode() {
-      const enteredCode = document.getElementById('auth-code').value;
-      if (enteredCode === AUTH_CODE) {
-        document.getElementById('code-modal').classList.add('hidden');
+      const code = document.getElementById('auth-code').value;
+      const correctCode = '123456'; // Ganti dengan kode yang sebenarnya
+      if (code === correctCode) {
         if (currentAction === 'upload') {
           uploadTutorial();
         } else if (currentAction === 'delete') {
           verifyAndDelete();
         }
+        document.getElementById('code-modal').classList.add('hidden');
       } else {
-        alert('Kode salah!');
+        alert('Kode salah. Silakan coba lagi.');
       }
     }
 
-    // Upload tutorial function
+    function validateEditCode() {
+      const code = document.getElementById('edit-auth-code').value;
+      const correctCode = '123456'; // Ganti dengan kode yang sebenarnya
+      if (code === correctCode) {
+        editTutorial();
+        document.getElementById('edit-modal').classList.add('hidden');
+      } else {
+        alert('Kode salah. Silakan coba lagi.');
+      }
+    }
+
     function uploadTutorial() {
-      const titleInput = document.getElementById('title');
-      const contentInput = document.getElementById('content');
-      const imageInput = document.getElementById('image');
-      const imageWidthInput = document.getElementById('imageWidth');
-      const imageHeightInput = document.getElementById('imageHeight');
-      const title = titleInput.value;
-      let content = contentInput.value;
-      const imageWidth = imageWidthInput.value ? parseInt(imageWidthInput.value) : null;
-      const imageHeight = imageHeightInput.value ? parseInt(imageHeightInput.value) : null;
+      const title = document.getElementById('title').value;
+      const image = document.getElementById('image').files[0];
+      const imageWidth = document.getElementById('imageWidth').value;
+      const imageHeight = document.getElementById('imageHeight').value;
+      const content = document.getElementById('content').value.replace(/\n/g, '<br>'); // Menambahkan line break
 
-      if (title === '' || content === '') {
-        alert('Judul dan isi tutorial diperlukan.');
-        return;
-      }
-
-      // Parse equation if exists
-      content = parseEquation(content);
-
-      if (imageInput.files.length === 0) {
-        saveTutorial(null, title, content, imageWidth, imageHeight);
+      if (image) {
+        const storageRef = storage.ref('tutorials/' + image.name);
+        storageRef.put(image).then(() => {
+          storageRef.getDownloadURL().then((url) => {
+            saveTutorial(title, content, url, imageWidth, imageHeight);
+          });
+        });
       } else {
-        const file = imageInput.files[0];
-        const storageRef = storage.ref('tutorials/' + file.name);
-        const uploadTask = storageRef.put(file);
-
-        uploadTask.on('state_changed',
-          (snapshot) => {
-            // Observe state change events such as progress, pause, and resume
-          },
-          (error) => {
-            // Handle unsuccessful uploads
-            console.error('Upload failed:', error);
-          },
-          () => {
-            // Handle successful uploads
-            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-              saveTutorial(downloadURL, title, content, imageWidth, imageHeight);
-            });
-          }
-        );
+        saveTutorial(title, content);
       }
     }
 
-    // Function to parse equations in content
-    function parseEquation(content) {
-      // Regular expression to find LaTeX equations enclosed in $$...$$
-      const equationRegex = /\$\$([\s\S]*?)\$\$/g;
-      // Replace LaTeX equations with MathJax formatting
-      content = content.replace(equationRegex, (match, equation) => {
-        return `<span class="math-tex" data-math="${equation.trim()}">\\(${equation.trim()}\\)</span>`;
-      });
-
-      return content;
-    }
-
-    function saveTutorial(imageURL, title, content, imageWidth, imageHeight) {
+    function saveTutorial(title, content, imageURL = '', imageWidth = '', imageHeight = '') {
       db.collection('tutorials').add({
-        imageURL: imageURL,
         title: title,
         content: content,
+        imageURL: imageURL,
         imageWidth: imageWidth,
-        imageHeight: imageHeight,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        imageHeight: imageHeight
       }).then(() => {
         alert('Tutorial berhasil diunggah!');
-        document.getElementById('upload-form').reset();
         loadTutorials();
       }).catch((error) => {
-        console.error('Error adding document:', error);
+        console.error('Error adding document: ', error);
       });
     }
 
-    // Load tutorials function
-    function loadTutorials() {
-      const tutorialsDiv = document.getElementById('tutorials');
-      tutorialsDiv.innerHTML = '';
+    function editTutorial() {
+      const title = document.getElementById('edit-title').value;
+      const content = document.getElementById('edit-content').value.replace(/\n/g, '<br>'); // Menambahkan line break
+      const docId = currentDocId;
 
-      db.collection('tutorials').orderBy('timestamp', 'desc').get().then((querySnapshot) => {
+      db.collection('tutorials').doc(docId).update({
+        title: title,
+        content: content
+      }).then(() => {
+        alert('Tutorial berhasil diubah!');
+        loadTutorials();
+      }).catch((error) => {
+        console.error('Error updating document: ', error);
+      });
+    }
+
+    function loadTutorials() {
+      db.collection('tutorials').get().then((querySnapshot) => {
+        const tutorialsDiv = document.getElementById('tutorials');
+        tutorialsDiv.innerHTML = '';
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           const tutorialElement = document.createElement('div');
-          tutorialElement.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow-lg', 'mb-4');
-
-          const contentElement = document.createElement('div');
-          contentElement.classList.add('mt-2');
-          contentElement.innerHTML = data.content;
-
-          // Render equations using MathJax
-          MathJax.typeset([contentElement]);
-
-          const deleteButton = document.createElement('button');
-          deleteButton.textContent = 'Hapus';
-          deleteButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline', 'ml-2');
-          deleteButton.onclick = () => {
-            currentAction = 'delete';
-            showDeletePrompt(doc.id);
-          };
+          tutorialElement.classList.add('bg-white', 'p-6', 'rounded-lg', 'shadow-lg', 'mb-4');
 
           const titleElement = document.createElement('h3');
+          titleElement.classList.add('text-xl', 'font-bold', 'mb-2');
           titleElement.textContent = data.title;
-          titleElement.classList.add('text-2xl', 'font-bold'); // Perbesar dan tebalkan font judul
 
-          const imageElement = document.createElement('img');
           if (data.imageURL) {
+            const imageElement = document.createElement('img');
             imageElement.src = data.imageURL;
             if (data.imageWidth) {
               imageElement.style.width = data.imageWidth + 'px';
@@ -370,57 +354,53 @@
             if (data.imageHeight) {
               imageElement.style.height = data.imageHeight + 'px';
             }
-            imageElement.alt = data.title;
+            tutorialElement.appendChild(imageElement);
           }
 
+          const contentElement = document.createElement('p');
+          contentElement.innerHTML = data.content; // Menampilkan line break
+
+          const editButton = document.createElement('button');
+          editButton.textContent = 'Edit';
+          editButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
+          editButton.onclick = () => showEditPrompt(doc.id, data.title, data.content.replace(/<br>/g, '\n'));
+
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Delete';
+          deleteButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
+          deleteButton.onclick = () => showDeletePrompt(doc.id);
+
           tutorialElement.appendChild(titleElement);
-          if (data.imageURL) {
-            if (data.imageWidth && data.imageHeight) {
-              const wrapperDiv = document.createElement('div');
-              wrapperDiv.classList.add('flex', 'mb-2');
-              wrapperDiv.appendChild(imageElement);
-              wrapperDiv.appendChild(contentElement);
-              tutorialElement.appendChild(wrapperDiv);
-            } else {
-              tutorialElement.appendChild(imageElement);
-              tutorialElement.appendChild(contentElement);
-            }
-          } else {
-            tutorialElement.appendChild(contentElement);
-          }
+          tutorialElement.appendChild(contentElement);
+          tutorialElement.appendChild(editButton);
           tutorialElement.appendChild(deleteButton);
 
           tutorialsDiv.appendChild(tutorialElement);
         });
+
+        MathJax.typesetPromise();
       }).catch((error) => {
         console.error('Error getting documents: ', error);
       });
     }
 
-    // Show delete prompt
     function showDeletePrompt(docId) {
-      const modal = document.getElementById('code-modal');
-      modal.classList.remove('hidden');
-      modal.dataset.docId = docId;
+      currentAction = 'delete';
+      currentDocId = docId;
+      document.getElementById('code-modal').classList.remove('hidden');
     }
 
-    // Verify and delete tutorial
     function verifyAndDelete() {
-      const modal = document.getElementById('code-modal');
-      const docId = modal.dataset.docId;
-
+      const docId = currentDocId;
       db.collection('tutorials').doc(docId).delete().then(() => {
         alert('Tutorial berhasil dihapus!');
         loadTutorials();
       }).catch((error) => {
-        console.error('Error removing document: ', error);
+        console.error('Error deleting document: ', error);
       });
-
-      modal.classList.add('hidden');
     }
 
-    // Load tutorials on page load
-    window.onload = loadTutorials;
+    loadTutorials();
   </script>
 </body>
 
