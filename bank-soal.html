@@ -192,9 +192,13 @@
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
             <div>
-                <label for="answerImage" class="block text-sm font-medium text-gray-700">Upload Jawaban Gambar (PNG/JPG)</label>
-                <input type="file" id="answerImage" name="answerImage" accept=".png, .jpg, .jpeg"
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <label for="answerImages" class="block text-sm font-medium text-gray-700">Upload Jawaban Gambar (PNG/JPG)</label>
+<input type="file" id="answerImages" name="answerImages" accept=".png, .jpg, .jpeg" multipleclass="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+<input type="file" id="answerImages" name="answerImages" accept=".png, .jpg, .jpeg" multipleclass="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+<input type="file" id="answerImages" name="answerImages" accept=".png, .jpg, .jpeg" multipleclass="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+<input type="file" id="answerImages" name="answerImages" accept=".png, .jpg, .jpeg" multipleclass="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+<input type="file" id="answerImages" name="answerImages" accept=".png, .jpg, .jpeg" multipleclass="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+<input type="file" id="answerImages" name="answerImages" accept=".png, .jpg, .jpeg" multipleclass="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
             <button type="submit"
                 class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Simpan</button>
@@ -242,31 +246,7 @@
             const bankSoalForm = document.getElementById('bankSoalForm');
             const bankSoalList = document.getElementById('bankSoalList');
 
-            // Function to load saved questions from Firestore
-            function loadQuestions() {
-                db.collection("questions").get().then((querySnapshot) => {
-                    bankSoalList.innerHTML = '';
-                    querySnapshot.forEach((doc) => {
-                        const question = doc.data();
-                        const questionElement = document.createElement('div');
-                        questionElement.className = 'p-4 bg-gray-200 rounded-md';
-                        questionElement.innerHTML =
-                            `<h3 class="text-lg font-bold">${question.question}</h3>
-                            ${question.answerText ? `<p>Jawaban Teks: ${question.answerText}</p>` : ''}
-                            ${question.answerImageUrl ? `<img src="${question.answerImageUrl}" class="mt-2 max-w-full h-auto">` : ''}
-                            <button data-id="${doc.id}" class="mt-2 bg-red-500 text-white py-1 px-2 rounded-md deleteBtn">Hapus</button>`;
-                        bankSoalList.appendChild(questionElement);
-
-                        // Add delete event listeners
-                        questionElement.querySelector('.deleteBtn').addEventListener('click', () => {
-                            deleteQuestion(doc.id);
-                        });
-                    });
-                });
-            }
-
-               // Function to save question to Firestore
-function saveQuestion(event) {
+            function saveQuestion(event) {
     event.preventDefault();
 
     // Prompt for confirmation with code input
@@ -279,7 +259,7 @@ function saveQuestion(event) {
     const formData = new FormData(bankSoalForm);
     const question = formData.get('question');
     const answerText = formData.get('answerText');
-    const answerImage = formData.get('answerImage');
+    const answerImages = formData.getAll('answerImages');
 
     if (!question) {
         console.error("Pertanyaan harus diisi.");
@@ -295,24 +275,51 @@ function saveQuestion(event) {
         data.answerText = answerText;
     }
 
-    // Check if answerImage is provided
-    if (answerImage) {
-        const storageRef = storage.ref();
-        const fileName = `${new Date().getTime()}_${answerImage.name}`;
-        const fileRef = storageRef.child(fileName);
-        fileRef.put(answerImage).then(() => {
-            fileRef.getDownloadURL().then((url) => {
-                data.answerImageUrl = url;
-                saveToFirestore(data);
-            }).catch((error) => {
-                console.error("Error getting download URL: ", error);
+    // Check if answerImages are provided
+    if (answerImages.length > 0) {
+        const imageUrls = [];
+        const promises = answerImages.map((image) => {
+            const storageRef = storage.ref();
+            const fileName = `${new Date().getTime()}_${image.name}`;
+            const fileRef = storageRef.child(fileName);
+            return fileRef.put(image).then(() => {
+                return fileRef.getDownloadURL().then((url) => {
+                    imageUrls.push(url);
+                });
             });
+        });
+
+        Promise.all(promises).then(() => {
+            data.answerImageUrls = imageUrls;
+            saveToFirestore(data);
         }).catch((error) => {
-            console.error("Error uploading file: ", error);
+            console.error("Error uploading files: ", error);
         });
     } else {
         saveToFirestore(data);
     }
+}
+
+function loadQuestions() {
+    db.collection("questions").get().then((querySnapshot) => {
+        bankSoalList.innerHTML = '';
+        querySnapshot.forEach((doc) => {
+            const question = doc.data();
+            const questionElement = document.createElement('div');
+            questionElement.className = 'p-4 bg-gray-200 rounded-md';
+            questionElement.innerHTML =
+                `<h3 class="text-lg font-bold">${question.question}</h3>
+                ${question.answerText ? `<p>Jawaban Teks: ${question.answerText}</p>` : ''}
+                ${question.answerImageUrls ? question.answerImageUrls.map(url => `<img src="${url}" class="mt-2 max-w-full h-auto">`).join('') : ''}
+                <button data-id="${doc.id}" class="mt-2 bg-red-500 text-white py-1 px-2 rounded-md deleteBtn">Hapus</button>`;
+            bankSoalList.appendChild(questionElement);
+
+            // Add delete event listeners
+            questionElement.querySelector('.deleteBtn').addEventListener('click', () => {
+                deleteQuestion(doc.id);
+            });
+        });
+    });
 }
 
 
