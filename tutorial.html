@@ -12,6 +12,22 @@
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
+    .tutorial-item {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+    }
+  
+    .tutorial-image {
+      margin-right: 20px;
+    }
+  
+    .tutorial-content {
+      flex: 1;
+    }
+  </style>
+  
+  <style>
     body {
       font-family: Arial, sans-serif;
       line-height: 1.6;
@@ -333,56 +349,61 @@
     }
 
     function loadTutorials() {
-      db.collection('tutorials').get().then((querySnapshot) => {
-        const tutorialsDiv = document.getElementById('tutorials');
-        tutorialsDiv.innerHTML = '';
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const tutorialElement = document.createElement('div');
-          tutorialElement.classList.add('bg-white', 'p-6', 'rounded-lg', 'shadow-lg', 'mb-4');
+  db.collection('tutorials').get().then((querySnapshot) => {
+    const tutorialsDiv = document.getElementById('tutorials');
+    tutorialsDiv.innerHTML = '';
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const tutorialElement = document.createElement('div');
+      tutorialElement.classList.add('tutorial-item', 'bg-white', 'p-6', 'rounded-lg', 'shadow-lg', 'mb-4');
 
-          const titleElement = document.createElement('h3');
-          titleElement.classList.add('text-xl', 'font-bold', 'mb-2');
-          titleElement.textContent = data.title;
+      if (data.imageURL) {
+        const imageElement = document.createElement('img');
+        imageElement.src = data.imageURL;
+        imageElement.classList.add('tutorial-image');
+        if (data.imageWidth) {
+          imageElement.style.width = data.imageWidth + 'px';
+        }
+        if (data.imageHeight) {
+          imageElement.style.height = data.imageHeight + 'px';
+        }
+        tutorialElement.appendChild(imageElement);
+      }
 
-          if (data.imageURL) {
-            const imageElement = document.createElement('img');
-            imageElement.src = data.imageURL;
-            if (data.imageWidth) {
-              imageElement.style.width = data.imageWidth + 'px';
-            }
-            if (data.imageHeight) {
-              imageElement.style.height = data.imageHeight + 'px';
-            }
-            tutorialElement.appendChild(imageElement);
-          }
+      const contentWrapper = document.createElement('div');
+      contentWrapper.classList.add('tutorial-content');
 
-          const contentElement = document.createElement('p');
-          contentElement.innerHTML = data.content; // Menampilkan line break
+      const titleElement = document.createElement('h3');
+      titleElement.classList.add('text-xl', 'font-bold', 'mb-2');
+      titleElement.textContent = data.title;
+      contentWrapper.appendChild(titleElement);
 
-          const editButton = document.createElement('button');
-          editButton.textContent = 'Edit';
-          editButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
-          editButton.onclick = () => showEditPrompt(doc.id, data.title, data.content.replace(/<br>/g, '\n'));
+      const contentElement = document.createElement('p');
+      contentElement.innerHTML = data.content; // Menampilkan line break
+      contentWrapper.appendChild(contentElement);
 
-          const deleteButton = document.createElement('button');
-          deleteButton.textContent = 'Delete';
-          deleteButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
-          deleteButton.onclick = () => showDeletePrompt(doc.id);
+      tutorialElement.appendChild(contentWrapper);
 
-          tutorialElement.appendChild(titleElement);
-          tutorialElement.appendChild(contentElement);
-          tutorialElement.appendChild(editButton);
-          tutorialElement.appendChild(deleteButton);
+      const editButton = document.createElement('button');
+      editButton.textContent = 'Edit';
+      editButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
+      editButton.onclick = () => showEditPrompt(doc.id, data.title, data.content.replace(/<br>/g, '\n'));
+      contentWrapper.appendChild(editButton);
 
-          tutorialsDiv.appendChild(tutorialElement);
-        });
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
+      deleteButton.onclick = () => showDeletePrompt(doc.id);
+      contentWrapper.appendChild(deleteButton);
 
-        MathJax.typesetPromise();
-      }).catch((error) => {
-        console.error('Error getting documents: ', error);
-      });
-    }
+      tutorialsDiv.appendChild(tutorialElement);
+    });
+
+    MathJax.typesetPromise();
+  }).catch((error) => {
+    console.error('Error getting documents: ', error);
+  });
+}
 
     function showDeletePrompt(docId) {
       currentAction = 'delete';
