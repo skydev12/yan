@@ -297,7 +297,7 @@
       }
 
       if (file) {
-        if (file.type.startsWith('video/') && file.size <= 60000000) { // Maximum size 60MB for 1 minute video
+        if (file.type.startsWith('video/') && file.size <= 120000000) { // Maximum size 60MB for 1 minute video
           const uploadTask = storage.ref(`videos/${file.name}`).put(file);
           
           uploadTask.on('state_changed', 
