@@ -227,128 +227,146 @@ main {
     const firestore = firebase.firestore();
 
     const gallery = document.getElementById('gallery');
-    const uploadForm = document.getElementById('upload-form');
-    const photoInput = document.getElementById('photo');
-    const descriptionInput = document.getElementById('description');
+  const uploadForm = document.getElementById('upload-form');
+  const photoInput = document.getElementById('photo');
+  const descriptionInput = document.getElementById('description');
 
-    // Function to toggle sidebar
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('hidden');
-    }
+  // Function to toggle sidebar
+  function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('hidden');
+  }
 
-    // Function to load content into main area
-    function loadContent(page) {
-      const mainContent = document.getElementById('main-content');
-      fetch(page)
-        .then(response => response.text())
-        .then(data => {
-          mainContent.innerHTML = data;
-          if (page === 'kegiatan-sekolah.html') {
-            setupGallery();
-          }
-        })
-        .catch(error => console.log('Error loading content:', error));
-    }
-
-    // Function to setup gallery
-    function setupGallery() {
-      gallery.innerHTML = ''; // Clear gallery first
-      firestore.collection('kegiatan').get()
-        .then(snapshot => {
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const imageUrl = data.imageUrl;
-            const description = data.description;
-            const card = `
-              <div class="bg-white p-4 rounded-lg shadow-lg">
-                <img src="${imageUrl}" alt="Kegiatan Sekolah" class="w-full h-auto mb-2 rounded">
-                <p class="text-gray-700">${description}</p>
-                <button onclick="showDeletePrompt('${doc.id}')" class="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">Hapus</button>
-              </div>
-            `;
-            gallery.innerHTML += card;
-          });
-        })
-        .catch(error => console.error('Error getting documents:', error));
-    }
-
-    // Function to show upload prompt
-    function showUploadPrompt() {
-      document.getElementById('code-modal').classList.remove('hidden');
-    }
-
-    // Function to hide upload prompt
-    function hideUploadPrompt() {
-      document.getElementById('code-modal').classList.add('hidden');
-    }
-
-    // Function to validate code and upload photo
-    function validateCode() {
-      const authCode = document.getElementById('auth-code').value;
-      if (authCode === 'risky') { // Replace 'your_secret_code' with your actual verification code
-        hideUploadPrompt();
-        uploadPhoto();
-      } else {
-        alert('Kode tidak valid.');
-      }
-    }
-
-    // Function to upload photo
-    function uploadPhoto() {
-      const file = photoInput.files[0];
-      const description = descriptionInput.value;
-
-      const storageRef = storage.ref();
-      const photoRef = storageRef.child('kegiatan/' + file.name);
-
-      photoRef.put(file)
-        .then(snapshot => snapshot.ref.getDownloadURL())
-        .then(url => {
-          // Save image URL and description to Firestore
-          return firestore.collection('kegiatan').add({
-            imageUrl: url,
-            description: description
-          });
-        })
-        .then(() => {
-          // Reload gallery after upload
+  // Function to load content into main area
+  function loadContent(page) {
+    const mainContent = document.getElementById('main-content');
+    fetch(page)
+      .then(response => response.text())
+      .then(data => {
+        mainContent.innerHTML = data;
+        if (page === 'kegiatan-sekolah.html') {
           setupGallery();
-          photoInput.value = '';
-          descriptionInput.value = '';
-          alert('Foto berhasil diunggah.');
-        })
-        .catch(error => {
-          console.error('Error uploading photo:', error);
-          alert('Terjadi kesalahan saat mengunggah foto.');
+        }
+      })
+      .catch(error => console.log('Error loading content:', error));
+  }
+
+  // Function to setup gallery
+  function setupGallery() {
+    gallery.innerHTML = ''; // Clear gallery first
+    firestore.collection('kegiatan').get()
+      .then(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const imageUrl = data.imageUrl;
+          const description = data.description;
+          const card = `
+            <div class="bg-white p-4 rounded-lg shadow-lg">
+              <img src="${imageUrl}" alt="Kegiatan Sekolah" class="w-full h-auto mb-2 rounded">
+              <p class="text-gray-700">${description}</p>
+              <button onclick="showDeletePrompt('${doc.id}')" class="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-200 ease-in-out">Hapus</button>
+            </div>
+          `;
+          gallery.innerHTML += card;
         });
-    }
+      })
+      .catch(error => console.error('Error getting documents:', error));
+  }
 
-    // Function to show delete prompt
-    function showDeletePrompt(docId) {
-      const authCode = prompt('Masukkan kode untuk menghapus:');
-      if (authCode === 'risky') { // Replace 'your_secret_code' with your actual verification code
-        deletePhoto(docId);
-      } else {
-        alert('Kode tidak valid.');
-      }
-    }
+  // Function to show upload prompt
+  function showUploadPrompt() {
+    document.getElementById('code-modal').classList.remove('hidden');
+  }
 
-    // Function to delete photo
-    function deletePhoto(docId) {
-      firestore.collection('kegiatan').doc(docId).delete()
-        .then(() => {
-          setupGallery();
-          alert('Foto berhasil dihapus.');
-        })
-        .catch(error => {
-          console.error('Error deleting photo:', error);
-          alert('Terjadi kesalahan saat menghapus foto.');
+  // Function to hide upload prompt
+  function hideUploadPrompt() {
+    document.getElementById('code-modal').classList.add('hidden');
+  }
+
+  // Function to validate code and upload photo
+  function validateCode() {
+    const authCode = document.getElementById('auth-code').value;
+
+    // Retrieve the confirmation code from Firestore
+    firestore.collection('settings').doc('confirmationCode').get()
+      .then(doc => {
+        if (doc.exists && authCode === doc.data().code) {
+          hideUploadPrompt();
+          uploadPhoto();
+        } else {
+          alert('Kode tidak valid.');
+        }
+      })
+      .catch(error => {
+        console.error('Error getting confirmation code:', error);
+        alert('Terjadi kesalahan saat memvalidasi kode.');
+      });
+  }
+
+  // Function to upload photo
+  function uploadPhoto() {
+    const file = photoInput.files[0];
+    const description = descriptionInput.value;
+
+    const storageRef = storage.ref();
+    const photoRef = storageRef.child('kegiatan/' + file.name);
+
+    photoRef.put(file)
+      .then(snapshot => snapshot.ref.getDownloadURL())
+      .then(url => {
+        // Save image URL and description to Firestore
+        return firestore.collection('kegiatan').add({
+          imageUrl: url,
+          description: description
         });
-    }
+      })
+      .then(() => {
+        // Reload gallery after upload
+        setupGallery();
+        photoInput.value = '';
+        descriptionInput.value = '';
+        alert('Foto berhasil diunggah.');
+      })
+      .catch(error => {
+        console.error('Error uploading photo:', error);
+        alert('Terjadi kesalahan saat mengunggah foto.');
+      });
+  }
 
-    // Initial setup
-    setupGallery();
+  // Function to show delete prompt
+  function showDeletePrompt(docId) {
+    const authCode = prompt('Masukkan kode untuk menghapus:');
+
+    // Retrieve the confirmation code from Firestore
+    firestore.collection('settings').doc('confirmationCode').get()
+      .then(doc => {
+        if (doc.exists && authCode === doc.data().code) {
+          deletePhoto(docId);
+        } else {
+          alert('Kode tidak valid.');
+        }
+      })
+      .catch(error => {
+        console.error('Error getting confirmation code:', error);
+        alert('Terjadi kesalahan saat memvalidasi kode.');
+      });
+  }
+
+  // Function to delete photo
+  function deletePhoto(docId) {
+    firestore.collection('kegiatan').doc(docId).delete()
+      .then(() => {
+        setupGallery();
+        alert('Foto berhasil dihapus.');
+      })
+      .catch(error => {
+        console.error('Error deleting photo:', error);
+        alert('Terjadi kesalahan saat menghapus foto.');
+      });
+  }
+
+  // Initial setup
+  setupGallery();
   </script>
 </body>
 </html>
