@@ -288,9 +288,8 @@
       appId: "1:70573427034:web:85ee8f762992016d310b63",
       measurementId: "G-4L76NDRV8E"
     };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+ // Initialize Firebase
+ firebase.initializeApp(firebaseConfig);
     const storage = firebase.storage();
     const db = firebase.firestore();
 
@@ -299,52 +298,75 @@
     const uploadCode = document.getElementById('uploadCode');
     const videoList = document.getElementById('videoList');
 
-    const correctUploadCode = "1234";  // Replace with your actual upload code
-    const correctDeleteCode = "1234";  // Replace with your actual delete code
-
-    uploadButton.addEventListener('click', () => {
-      const file = videoInput.files[0];
-      const code = uploadCode.value;
-
-      if (code !== correctUploadCode) {
-        alert('Invalid upload code.');
-        return;
-      }
-
-      if (file) {
-        if (file.type.startsWith('video/') && file.size <= 60000000) { // Maximum size 60MB for 1 minute video
-          const uploadTask = storage.ref(`videos/${file.name}`).put(file);
-          
-          uploadTask.on('state_changed', 
-            (snapshot) => {
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              console.log(`Upload is ${progress}% done`);
-            }, 
-            (error) => {
-              console.error('Upload failed:', error);
-            }, 
-            () => {
-              uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                db.collection('videos').add({
-                  url: downloadURL,
-                  name: file.name,
-                  timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => {
-                  console.log('Video successfully uploaded and saved to Firestore');
-                  displayVideos();
-                }).catch((error) => {
-                  console.error('Error adding video to Firestore:', error);
-                });
-              });
-            }
-          );
+    async function getConfirmationCode() {
+      try {
+        const doc = await db.collection('settings').doc('confirmationCode').get();
+        if (doc.exists) {
+          return doc.data().code;
         } else {
-          alert('Please upload a video file with a maximum duration of 1 minute.');
+          console.error('No such document!');
+          return null;
         }
-      } else {
-        alert('Please select a video file.');
+      } catch (error) {
+        console.error('Error getting document:', error);
+        return null;
       }
-    });
+    }
+
+    uploadButton.addEventListener('click', async () => {
+  const file = videoInput.files[0];
+  const code = uploadCode.value;
+
+  if (!file) {
+    alert('Please select a video file.');
+    return;
+  }
+
+  const correctUploadCode = await getConfirmationCode();
+
+  if (correctUploadCode === null) {
+    alert('Error retrieving confirmation code.');
+    return;
+  }
+
+  if (code !== correctUploadCode) {
+    alert('Invalid upload code.');
+    return;
+  }
+
+  if (file) {
+    if (file.type.startsWith('video/') && file.size <= 60000000) { // Maximum size 60MB for 1 minute video
+      const uploadTask = storage.ref(`videos/${file.name}`).put(file);
+
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        }, 
+        (error) => {
+          console.error('Upload failed:', error);
+        }, 
+        () => {
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            db.collection('videos').add({
+              url: downloadURL,
+              name: file.name,
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+              console.log('Video successfully uploaded and saved to Firestore');
+              displayVideos();
+            }).catch((error) => {
+              console.error('Error adding video to Firestore:', error);
+            });
+          });
+        }
+      );
+    } else {
+      alert('Please upload a video file with a maximum duration of 1 minute.');
+    }
+  }
+});
+
 
     function displayVideos() {
       videoList.innerHTML = '';
@@ -363,8 +385,9 @@
           videoList.appendChild(videoElement);
 
           // Add delete button event listener
-          videoElement.querySelector('.delete-btn').addEventListener('click', () => {
+          videoElement.querySelector('.delete-btn').addEventListener('click', async () => {
             const deleteCode = prompt('Enter delete code:');
+            const correctDeleteCode = await getConfirmationCode(); // Assuming delete code is also retrieved from Firestore
             if (deleteCode === correctDeleteCode) {
               deleteVideo(doc.id, videoData.name);
             } else {
@@ -398,19 +421,18 @@
   </script>
   <script>
     function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const toggleButton = document.querySelector('.toggle-sidebar');
-        sidebar.classList.toggle('hidden');
-        toggleButton.classList.toggle('active');
+      const sidebar = document.getElementById('sidebar');
+      const toggleButton = document.querySelector('.toggle-sidebar');
+      sidebar.classList.toggle('hidden');
+      toggleButton.classList.toggle('active');
     }
-</script>
+  </script>
 
-<!-- Toggle Sidebar Icon -->
-<div class="toggle-sidebar" onclick="toggleSidebar()">
+  <!-- Toggle Sidebar Icon -->
+  <div class="toggle-sidebar" onclick="toggleSidebar()">
     <div class="bar"></div>
     <div class="bar"></div>
     <div class="bar"></div>
-</div>
-</script>
+  </div>
 </body>
 </html>
