@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bahan Ajar</title>
+    <title>elearning</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
@@ -245,8 +245,8 @@
             });
         }
 
-        // Function to save teaching material and upload file to Firestore
-        function saveMaterial(event) {
+       // Function to save teaching material and upload file to Firestore
+async function saveMaterial(event) {
     event.preventDefault();
 
     const formData = new FormData(bahanAjarForm);
@@ -258,8 +258,18 @@
         return;
     }
 
+    // Fetch confirmation code from Firestore
+    const docRef = db.collection('settings').doc('confirmationCode');
+    const doc = await docRef.get();
+    if (!doc.exists) {
+        console.error("No confirmation code found in Firestore.");
+        alert('Kode konfirmasi tidak ditemukan. Penyimpanan dibatalkan.');
+        return;
+    }
+
+    const correctCode = doc.data().code;
     const confirmationCode = prompt('Masukkan kode konfirmasi untuk menyimpan:');
-    if (confirmationCode !== 'sky') { // Ganti 'sky' dengan kode yang Anda tetapkan
+    if (confirmationCode !== correctCode) {
         alert('Kode konfirmasi salah. Penyimpanan dibatalkan.');
         return;
     }
@@ -271,20 +281,31 @@
         const fileName = `${new Date().getTime()}_${file.name}`;
         const fileRef = storageRef.child(fileName);
 
-        fileRef.put(file).then(() => {
-            fileRef.getDownloadURL().then((url) => {
-                data.fileUrl = url;
-                saveToFirestore(data);
-            }).catch((error) => {
-                console.error("Error getting download URL: ", error);
-            });
-        }).catch((error) => {
-            console.error("Error uploading file: ", error);
-        });
+        try {
+            await fileRef.put(file);
+            const url = await fileRef.getDownloadURL();
+            data.fileUrl = url;
+            await saveToFirestore(data);
+        } catch (error) {
+            console.error("Error uploading file or getting download URL: ", error);
+        }
     } else {
-        saveToFirestore(data);
+        await saveToFirestore(data);
     }
 }
+
+// Function to save data to Firestore
+async function saveToFirestore(data) {
+    try {
+        await db.collection('teachingMaterials').add(data);
+        alert('Materi berhasil disimpan.');
+        loadMaterials(); // Reload materials list
+    } catch (error) {
+        console.error("Error saving material to Firestore: ", error);
+        alert('Gagal menyimpan materi.');
+    }
+}
+
 
 
         // Function to save data to Firestore
@@ -300,37 +321,51 @@
                 });
         }
 
-        // Function to delete teaching material from Firestore
-        function deleteMaterial(id, fileUrl) {
-            const confirmationCode = prompt('Masukkan kode konfirmasi untuk menghapus:');
-            if (confirmationCode !== 'sky') { // Ganti 'sky' dengan kode yang Anda tetapkan
-                alert('Kode konfirmasi salah. Penghapusan dibatalkan.');
-                return;
-            }
+       // Function to delete teaching material from Firestore
+async function deleteMaterial(id, fileUrl) {
+    try {
+        // Get the confirmation code from Firestore
+        const docRef = db.collection('settings').doc('confirmationCode');
+        const doc = await docRef.get();
 
-            // Delete file from Storage if fileUrl exists
-            if (fileUrl) {
-                const storageRef = storage.refFromURL(fileUrl);
-                storageRef.delete().then(() => {
-                    console.log("File deleted successfully from Storage.");
-                }).catch((error) => {
-                    console.error("Error deleting file from Storage: ", error);
-                });
-            }
-
-            // Delete document from Firestore
-            db.collection("teachingMaterials").doc(id).delete().then(() => {
-                loadMaterials(); // Reload materials list
-            }).catch((error) => {
-                console.error("Error removing document: ", error);
-            });
+        if (!doc.exists) {
+            console.error('Kode konfirmasi tidak ditemukan di Firestore.');
+            return;
         }
 
-        // Load teaching materials on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadMaterials();
-            bahanAjarForm.addEventListener('submit', saveMaterial);
-        });
+        const correctCode = doc.data().code;
+        
+        // Prompt user for confirmation code
+        const confirmationCode = prompt('Masukkan kode konfirmasi untuk menghapus:');
+        
+        if (confirmationCode !== correctCode) { // Compare with the code from Firestore
+            alert('Kode konfirmasi salah. Penghapusan dibatalkan.');
+            return;
+        }
+
+        // Delete file from Storage if fileUrl exists
+        if (fileUrl) {
+            const storageRef = storage.refFromURL(fileUrl);
+            await storageRef.delete();
+            console.log("File deleted successfully from Storage.");
+        }
+
+        // Delete document from Firestore
+        await db.collection("teachingMaterials").doc(id).delete();
+        console.log("Document successfully deleted from Firestore.");
+        
+        loadMaterials(); // Reload materials list
+    } catch (error) {
+        console.error("Error deleting material: ", error);
+    }
+}
+
+// Load teaching materials on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadMaterials();
+    bahanAjarForm.addEventListener('submit', saveMaterial);
+});
+
     </script>
 </body>
 
