@@ -250,55 +250,66 @@
             function saveQuestion(event) {
     event.preventDefault();
 
-    // Prompt for confirmation with code input
-    var confirmationCode = prompt('Masukkan kode konfirmasi:');
-    if (confirmationCode !== 'sky') { // Ganti 'kodeAnda' dengan kode yang Anda tetapkan
-        alert('Kode konfirmasi salah. Silakan coba lagi.');
-        return;
-    }
+    // Ambil kode konfirmasi dari Firestore
+    db.collection("settings").doc("confirmationCode").get().then((doc) => {
+        if (doc.exists) {
+            const confirmationCode = doc.data().code;
 
-    const formData = new FormData(bankSoalForm);
-    const question = formData.get('question');
-    const answerText = formData.get('answerText');
-    const answerImages = formData.getAll('answerImages');
+            // Prompt for confirmation with code input
+            var userInputCode = prompt('Masukkan kode konfirmasi:');
+            if (userInputCode !== confirmationCode) { // Bandingkan dengan kode dari Firestore
+                alert('Kode konfirmasi salah. Silakan coba lagi.');
+                return;
+            }
 
-    if (!question) {
-        console.error("Pertanyaan harus diisi.");
-        return;
-    }
+            const formData = new FormData(bankSoalForm);
+            const question = formData.get('question');
+            const answerText = formData.get('answerText');
+            const answerImages = formData.getAll('answerImages');
 
-    const data = {
-        question: question
-    };
+            if (!question) {
+                console.error("Pertanyaan harus diisi.");
+                return;
+            }
 
-    // Check if answerText is provided
-    if (answerText) {
-        data.answerText = answerText;
-    }
+            const data = {
+                question: question
+            };
 
-    // Check if answerImages are provided
-    if (answerImages.length > 0) {
-        const imageUrls = [];
-        const promises = answerImages.map((image) => {
-            const storageRef = storage.ref();
-            const fileName = `${new Date().getTime()}_${image.name}`;
-            const fileRef = storageRef.child(fileName);
-            return fileRef.put(image).then(() => {
-                return fileRef.getDownloadURL().then((url) => {
-                    imageUrls.push(url);
+            // Check if answerText is provided
+            if (answerText) {
+                data.answerText = answerText;
+            }
+
+            // Check if answerImages are provided
+            if (answerImages.length > 0) {
+                const imageUrls = [];
+                const promises = answerImages.map((image) => {
+                    const storageRef = storage.ref();
+                    const fileName = `${new Date().getTime()}_${image.name}`;
+                    const fileRef = storageRef.child(fileName);
+                    return fileRef.put(image).then(() => {
+                        return fileRef.getDownloadURL().then((url) => {
+                            imageUrls.push(url);
+                        });
+                    });
                 });
-            });
-        });
 
-        Promise.all(promises).then(() => {
-            data.answerImageUrls = imageUrls;
-            saveToFirestore(data);
-        }).catch((error) => {
-            console.error("Error uploading files: ", error);
-        });
-    } else {
-        saveToFirestore(data);
-    }
+                Promise.all(promises).then(() => {
+                    data.answerImageUrls = imageUrls;
+                    saveToFirestore(data);
+                }).catch((error) => {
+                    console.error("Error uploading files: ", error);
+                });
+            } else {
+                saveToFirestore(data);
+            }
+        } else {
+            console.error("Kode konfirmasi tidak ditemukan di Firestore.");
+        }
+    }).catch((error) => {
+        console.error("Error fetching confirmation code: ", error);
+    });
 }
 
 function loadQuestions() {
@@ -323,37 +334,49 @@ function loadQuestions() {
     });
 }
 
+// Function to save data to Firestore
+function saveToFirestore(data) {
+    db.collection("questions").add(data)
+        .then(() => {
+            loadQuestions();
+            bankSoalForm.reset();
+        })
+        .catch((error) => {
+            console.error("Error adding document: ", error);
+        });
+}
 
-            // Function to save data to Firestore
-            function saveToFirestore(data) {
-                db.collection("questions").add(data)
-                    .then(() => {
-                        loadQuestions();
-                        bankSoalForm.reset();
-                    })
-                    .catch((error) => {
-                        console.error("Error adding document: ", error);
-                    });
+// Function to delete a question with confirmation
+function deleteQuestion(id) {
+    // Ambil kode konfirmasi dari Firestore
+    db.collection("settings").doc("confirmationCode").get().then((doc) => {
+        if (doc.exists) {
+            const confirmationCode = doc.data().code;
+            // Prompt for confirmation with code input
+            var userInputCode = prompt('Masukkan kode konfirmasi:');
+            if (userInputCode !== confirmationCode) { // Bandingkan dengan kode dari Firestore
+                alert('Kode konfirmasi salah. Silakan coba lagi.');
+                return;
             }
 
-            function deleteQuestion(id) {
-    // Prompt for confirmation with code input
-    var confirmationCode = prompt('Masukkan kode konfirmasi:');
-    if (confirmationCode !== 'sky') { // Ganti 'kodeAnda' dengan kode yang Anda tetapkan
-        alert('Kode konfirmasi salah. Silakan coba lagi.');
-        return;
-    }
-
-    db.collection("questions").doc(id).delete().then(() => {
-        loadQuestions();
+            // Hapus dokumen jika kode konfirmasi benar
+            db.collection("questions").doc(id).delete().then(() => {
+                loadQuestions();
+            }).catch((error) => {
+                console.error("Error removing document: ", error);
+            });
+        } else {
+            console.error("Kode konfirmasi tidak ditemukan di Firestore.");
+        }
     }).catch((error) => {
-        console.error("Error removing document: ", error);
+        console.error("Error fetching confirmation code: ", error);
     });
 }
 
-            // Load questions on page load
-            loadQuestions();
-            bankSoalForm.addEventListener('submit', saveQuestion);
+// Load questions on page load
+loadQuestions();
+bankSoalForm.addEventListener('submit', saveQuestion);
+
         });
     </script>
 </body>
