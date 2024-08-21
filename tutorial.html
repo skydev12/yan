@@ -241,26 +241,33 @@
     let currentAction = '';
     let currentDocId = '';
 
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('hidden');
-    }
+    // Function to toggle sidebar
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('hidden');
+  }
 
-    function showUploadPrompt() {
-      currentAction = 'upload';
-      document.getElementById('code-modal').classList.remove('hidden');
-    }
+  // Function to show upload prompt
+  function showUploadPrompt() {
+    currentAction = 'upload';
+    document.getElementById('code-modal').classList.remove('hidden');
+  }
 
-    function showEditPrompt(docId, title, content) {
-      currentAction = 'edit';
-      currentDocId = docId;
-      document.getElementById('edit-title').value = title;
-      document.getElementById('edit-content').value = content;
-      document.getElementById('edit-modal').classList.remove('hidden');
-    }
+  // Function to show edit prompt
+  function showEditPrompt(docId, title, content) {
+    currentAction = 'edit';
+    currentDocId = docId;
+    document.getElementById('edit-title').value = title;
+    document.getElementById('edit-content').value = content;
+    document.getElementById('edit-modal').classList.remove('hidden');
+  }
 
-    function validateCode() {
-      const code = document.getElementById('auth-code').value;
-      const correctCode = '123456'; // Ganti dengan kode yang sebenarnya
+  // Function to validate code against Firestore
+  function validateCode() {
+    const code = document.getElementById('auth-code').value;
+
+    // Fetch the correct code from Firestore
+    db.collection('settings').doc('confirmationCode').get().then(doc => {
+      const correctCode = doc.data().code;
       if (code === correctCode) {
         if (currentAction === 'upload') {
           uploadTutorial();
@@ -271,143 +278,162 @@
       } else {
         alert('Kode salah. Silakan coba lagi.');
       }
-    }
+    }).catch(error => {
+      console.error('Error getting code from Firestore: ', error);
+      alert('Terjadi kesalahan saat memverifikasi kode.');
+    });
+  }
 
-    function validateEditCode() {
-      const code = document.getElementById('edit-auth-code').value;
-      const correctCode = '123456'; // Ganti dengan kode yang sebenarnya
+  // Function to validate edit code
+  function validateEditCode() {
+    const code = document.getElementById('edit-auth-code').value;
+
+    // Fetch the correct code from Firestore
+    db.collection('settings').doc('confirmationCode').get().then(doc => {
+      const correctCode = doc.data().code;
       if (code === correctCode) {
         editTutorial();
         document.getElementById('edit-modal').classList.add('hidden');
       } else {
         alert('Kode salah. Silakan coba lagi.');
       }
-    }
-
-    function uploadTutorial() {
-      const title = document.getElementById('title').value;
-      const image = document.getElementById('image').files[0];
-      const imageWidth = document.getElementById('imageWidth').value;
-      const imageHeight = document.getElementById('imageHeight').value;
-      const content = document.getElementById('content').value.replace(/\n/g, '<br>'); // Menambahkan line break
-
-      if (image) {
-        const storageRef = storage.ref('tutorials/' + image.name);
-        storageRef.put(image).then(() => {
-          storageRef.getDownloadURL().then((url) => {
-            saveTutorial(title, content, url, imageWidth, imageHeight);
-          });
-        });
-      } else {
-        saveTutorial(title, content);
-      }
-    }
-
-    function saveTutorial(title, content, imageURL = '', imageWidth = '', imageHeight = '') {
-      db.collection('tutorials').add({
-        title: title,
-        content: content,
-        imageURL: imageURL,
-        imageWidth: imageWidth,
-        imageHeight: imageHeight
-      }).then(() => {
-        alert('Tutorial berhasil diunggah!');
-        loadTutorials();
-      }).catch((error) => {
-        console.error('Error adding document: ', error);
-      });
-    }
-
-    function editTutorial() {
-      const title = document.getElementById('edit-title').value;
-      const content = document.getElementById('edit-content').value.replace(/\n/g, '<br>'); // Menambahkan line break
-      const docId = currentDocId;
-
-      db.collection('tutorials').doc(docId).update({
-        title: title,
-        content: content
-      }).then(() => {
-        alert('Tutorial berhasil diubah!');
-        loadTutorials();
-      }).catch((error) => {
-        console.error('Error updating document: ', error);
-      });
-    }
-
-    function loadTutorials() {
-  db.collection('tutorials').get().then((querySnapshot) => {
-    const tutorialsDiv = document.getElementById('tutorials');
-    tutorialsDiv.innerHTML = '';
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      const tutorialElement = document.createElement('div');
-      tutorialElement.classList.add('tutorial-item', 'bg-white', 'p-6', 'rounded-lg', 'shadow-lg', 'mb-4');
-
-      if (data.imageURL) {
-        const imageElement = document.createElement('img');
-        imageElement.src = data.imageURL;
-        imageElement.classList.add('tutorial-image');
-        if (data.imageWidth) {
-          imageElement.style.width = data.imageWidth + 'px';
-        }
-        if (data.imageHeight) {
-          imageElement.style.height = data.imageHeight + 'px';
-        }
-        tutorialElement.appendChild(imageElement);
-      }
-
-      const contentWrapper = document.createElement('div');
-      contentWrapper.classList.add('tutorial-content');
-
-      const titleElement = document.createElement('h3');
-      titleElement.classList.add('text-xl', 'font-bold', 'mb-2');
-      titleElement.textContent = data.title;
-      contentWrapper.appendChild(titleElement);
-
-      const contentElement = document.createElement('p');
-      contentElement.innerHTML = data.content; // Menampilkan line break
-      contentWrapper.appendChild(contentElement);
-
-      tutorialElement.appendChild(contentWrapper);
-
-      const editButton = document.createElement('button');
-      editButton.textContent = 'Edit';
-      editButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
-      editButton.onclick = () => showEditPrompt(doc.id, data.title, data.content.replace(/<br>/g, '\n'));
-      contentWrapper.appendChild(editButton);
-
-      const deleteButton = document.createElement('button');
-      deleteButton.textContent = 'Delete';
-      deleteButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
-      deleteButton.onclick = () => showDeletePrompt(doc.id);
-      contentWrapper.appendChild(deleteButton);
-
-      tutorialsDiv.appendChild(tutorialElement);
+    }).catch(error => {
+      console.error('Error getting code from Firestore: ', error);
+      alert('Terjadi kesalahan saat memverifikasi kode.');
     });
+  }
 
-    MathJax.typesetPromise();
-  }).catch((error) => {
-    console.error('Error getting documents: ', error);
-  });
-}
+  // Function to upload tutorial
+  function uploadTutorial() {
+    const title = document.getElementById('title').value;
+    const image = document.getElementById('image').files[0];
+    const imageWidth = document.getElementById('imageWidth').value;
+    const imageHeight = document.getElementById('imageHeight').value;
+    const content = document.getElementById('content').value.replace(/\n/g, '<br>');
 
-    function showDeletePrompt(docId) {
-      currentAction = 'delete';
-      currentDocId = docId;
-      document.getElementById('code-modal').classList.remove('hidden');
-    }
-
-    function verifyAndDelete() {
-      const docId = currentDocId;
-      db.collection('tutorials').doc(docId).delete().then(() => {
-        alert('Tutorial berhasil dihapus!');
-        loadTutorials();
-      }).catch((error) => {
-        console.error('Error deleting document: ', error);
+    if (image) {
+      const storageRef = storage.ref('tutorials/' + image.name);
+      storageRef.put(image).then(() => {
+        storageRef.getDownloadURL().then(url => {
+          saveTutorial(title, content, url, imageWidth, imageHeight);
+        });
       });
+    } else {
+      saveTutorial(title, content);
     }
+  }
 
-    loadTutorials();
+  // Function to save tutorial to Firestore
+  function saveTutorial(title, content, imageURL = '', imageWidth = '', imageHeight = '') {
+    db.collection('tutorials').add({
+      title: title,
+      content: content,
+      imageURL: imageURL,
+      imageWidth: imageWidth,
+      imageHeight: imageHeight
+    }).then(() => {
+      alert('Tutorial berhasil diunggah!');
+      loadTutorials();
+    }).catch(error => {
+      console.error('Error adding document: ', error);
+    });
+  }
+
+  // Function to edit tutorial
+  function editTutorial() {
+    const title = document.getElementById('edit-title').value;
+    const content = document.getElementById('edit-content').value.replace(/\n/g, '<br>');
+    const docId = currentDocId;
+
+    db.collection('tutorials').doc(docId).update({
+      title: title,
+      content: content
+    }).then(() => {
+      alert('Tutorial berhasil diubah!');
+      loadTutorials();
+    }).catch(error => {
+      console.error('Error updating document: ', error);
+    });
+  }
+
+  // Function to load tutorials from Firestore
+  function loadTutorials() {
+    db.collection('tutorials').get().then(querySnapshot => {
+      const tutorialsDiv = document.getElementById('tutorials');
+      tutorialsDiv.innerHTML = '';
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const tutorialElement = document.createElement('div');
+        tutorialElement.classList.add('tutorial-item', 'bg-white', 'p-6', 'rounded-lg', 'shadow-lg', 'mb-4');
+
+        if (data.imageURL) {
+          const imageElement = document.createElement('img');
+          imageElement.src = data.imageURL;
+          imageElement.classList.add('tutorial-image');
+          if (data.imageWidth) {
+            imageElement.style.width = data.imageWidth + 'px';
+          }
+          if (data.imageHeight) {
+            imageElement.style.height = data.imageHeight + 'px';
+          }
+          tutorialElement.appendChild(imageElement);
+        }
+
+        const contentWrapper = document.createElement('div');
+        contentWrapper.classList.add('tutorial-content');
+
+        const titleElement = document.createElement('h3');
+        titleElement.classList.add('text-xl', 'font-bold', 'mb-2');
+        titleElement.textContent = data.title;
+        contentWrapper.appendChild(titleElement);
+
+        const contentElement = document.createElement('p');
+        contentElement.innerHTML = data.content;
+        contentWrapper.appendChild(contentElement);
+
+        tutorialElement.appendChild(contentWrapper);
+
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.classList.add('bg-yellow-500', 'hover:bg-yellow-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
+        editButton.onclick = () => showEditPrompt(doc.id, data.title, data.content.replace(/<br>/g, '\n'));
+        contentWrapper.appendChild(editButton);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'focus:outline-none', 'focus:shadow-outline');
+        deleteButton.onclick = () => showDeletePrompt(doc.id);
+        contentWrapper.appendChild(deleteButton);
+
+        tutorialsDiv.appendChild(tutorialElement);
+      });
+
+      MathJax.typesetPromise();
+    }).catch(error => {
+      console.error('Error getting documents: ', error);
+    });
+  }
+
+  // Function to show delete prompt
+  function showDeletePrompt(docId) {
+    currentAction = 'delete';
+    currentDocId = docId;
+    document.getElementById('code-modal').classList.remove('hidden');
+  }
+
+  // Function to verify code and delete tutorial
+  function verifyAndDelete() {
+    const docId = currentDocId;
+    db.collection('tutorials').doc(docId).delete().then(() => {
+      alert('Tutorial berhasil dihapus!');
+      loadTutorials();
+    }).catch(error => {
+      console.error('Error deleting document: ', error);
+    });
+  }
+
+  // Load tutorials on page load
+  loadTutorials();
   </script>
 </body>
 
