@@ -211,21 +211,26 @@
         var db = firebase.firestore();
         var storage = firebase.storage();
 
-        // Show sidebar
-        function toggleSidebar() {
-            var sidebar = document.getElementById('sidebar');
-            var toggleButton = document.querySelector('.toggle-sidebar');
-            sidebar.classList.toggle('hidden');
-            toggleButton.classList.toggle('active');
-        }
+      // Show sidebar
+function toggleSidebar() {
+    var sidebar = document.getElementById('sidebar');
+    var toggleButton = document.querySelector('.toggle-sidebar');
+    sidebar.classList.toggle('hidden');
+    toggleButton.classList.toggle('active');
+}
 
-        // Handle form submission for karya tulis
-        document.getElementById('karyaTulisForm').addEventListener('submit', function (event) {
-            event.preventDefault();
+// Handle form submission for karya tulis
+document.getElementById('karyaTulisForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    // Ambil kode konfirmasi dari Firestore
+    db.collection("settings").doc("confirmationCode").get().then((doc) => {
+        if (doc.exists) {
+            const confirmationCode = doc.data().code;
 
             // Prompt for confirmation with code input
-            var confirmationCode = prompt('Masukkan kode konfirmasi:');
-            if (confirmationCode === '1234') { // Ganti 'kodeAnda' dengan kode yang Anda tetapkan
+            var userInputCode = prompt('Masukkan kode konfirmasi:');
+            if (userInputCode === confirmationCode) {
                 var title = document.getElementById('title').value;
                 var content = document.getElementById('content').value;
                 var fileInput = document.getElementById('file');
@@ -262,47 +267,58 @@
             } else {
                 alert('Kode konfirmasi salah. Tindakan dibatalkan.');
             }
+        } else {
+            console.error("Kode konfirmasi tidak ditemukan di Firestore.");
+        }
+    }).catch(function (error) {
+        console.error('Error fetching confirmation code:', error);
+    });
+});
+
+// Load and display karya tulis
+function loadKaryaTulis() {
+    db.collection('karya-tulis').get().then(function (querySnapshot) {
+        var karyaTulisList = document.getElementById('karyaTulisList');
+        karyaTulisList.innerHTML = '';
+        querySnapshot.forEach(function (doc) {
+            var data = doc.data();
+            var listItem = document.createElement('div');
+            listItem.className = 'p-4 bg-white rounded-lg shadow-md';
+            listItem.innerHTML = `
+                <h3 class="text-lg font-bold">${data.title}</h3>
+                <p>${data.content}</p>
+                ${data.fileName ? `<a href="#" onclick="downloadFile('${doc.id}', '${data.fileName}')" class="text-blue-500 underline">Download File</a>` : ''}
+                <button onclick="deleteKaryaTulis('${doc.id}', '${data.fileName}')"
+                    class="text-red-500 mt-2">Hapus</button>
+            `;
+            karyaTulisList.appendChild(listItem);
         });
+    });
+}
 
-        // Load and display karya tulis
-        function loadKaryaTulis() {
-            db.collection('karya-tulis').get().then(function (querySnapshot) {
-                var karyaTulisList = document.getElementById('karyaTulisList');
-                karyaTulisList.innerHTML = '';
-                querySnapshot.forEach(function (doc) {
-                    var data = doc.data();
-                    var listItem = document.createElement('div');
-                    listItem.className = 'p-4 bg-white rounded-lg shadow-md';
-                    listItem.innerHTML = `
-                        <h3 class="text-lg font-bold">${data.title}</h3>
-                        <p>${data.content}</p>
-                        ${data.fileName ? `<a href="#" onclick="downloadFile('${doc.id}', '${data.fileName}')" class="text-blue-500 underline">Download File</a>` : ''}
-                        <button onclick="deleteKaryaTulis('${doc.id}', '${data.fileName}')"
-                            class="text-red-500 mt-2">Hapus</button>
-                    `;
-                    karyaTulisList.appendChild(listItem);
-                });
-            });
-        }
+// Download file
+function downloadFile(docId, fileName) {
+    var storageRef = storage.ref('karya-tulis/' + docId + '/' + fileName);
+    storageRef.getDownloadURL().then(function (url) {
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.click();
+    }).catch(function (error) {
+        console.error('Error getting download URL:', error);
+    });
+}
 
-        // Download file
-        function downloadFile(docId, fileName) {
-            var storageRef = storage.ref('karya-tulis/' + docId + '/' + fileName);
-            storageRef.getDownloadURL().then(function (url) {
-                var link = document.createElement('a');
-                link.href = url;
-                link.download = fileName;
-                link.click();
-            }).catch(function (error) {
-                console.error('Error getting download URL:', error);
-            });
-        }
+// Delete karya tulis
+function deleteKaryaTulis(docId, fileName) {
+    // Ambil kode konfirmasi dari Firestore
+    db.collection("settings").doc("confirmationCode").get().then((doc) => {
+        if (doc.exists) {
+            const confirmationCode = doc.data().code;
 
-        // Delete karya tulis
-        function deleteKaryaTulis(docId, fileName) {
             // Prompt for confirmation with code input
-            var confirmationCode = prompt('Masukkan kode konfirmasi untuk menghapus:');
-            if (confirmationCode === '1234') { // Ganti 'kodeAnda' dengan kode yang Anda tetapkan
+            var userInputCode = prompt('Masukkan kode konfirmasi untuk menghapus:');
+            if (userInputCode === confirmationCode) {
                 // Hapus dokumen dari Firestore
                 db.collection('karya-tulis').doc(docId).delete().then(function () {
                     console.log('Document successfully deleted!');
@@ -325,12 +341,19 @@
             } else {
                 alert('Kode konfirmasi salah. Tindakan dibatalkan.');
             }
+        } else {
+            console.error("Kode konfirmasi tidak ditemukan di Firestore.");
         }
+    }).catch(function (error) {
+        console.error('Error fetching confirmation code:', error);
+    });
+}
 
-        // Load karya tulis when the page loads
-        window.onload = function () {
-            loadKaryaTulis();
-        };
+// Load karya tulis when the page loads
+window.onload = function () {
+    loadKaryaTulis();
+};
+
     </script>
 </body>
 
