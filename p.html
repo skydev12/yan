@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-functions.js"></script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Login Page -->
+    <div id="loginPage" class="flex items-center justify-center h-screen">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+            <h2 class="text-2xl font-bold mb-4">Login</h2>
+            <input type="text" id="name" placeholder="Nama" class="border border-gray-300 p-2 rounded-lg w-full mb-4">
+            <input type="email" id="email" placeholder="Email" class="border border-gray-300 p-2 rounded-lg w-full mb-4">
+            <input type="password" id="password" placeholder="Password" class="border border-gray-300 p-2 rounded-lg w-full mb-4">
+            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full" onclick="login()">Login</button>
+            <p class="mt-4 text-center">Belum punya akun? <a href="#" onclick="showRegister()">Daftar</a></p>
+        </div>
+    </div>
+
+    <!-- Register Page -->
+    <div id="registerPage" class="hidden flex items-center justify-center h-screen">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+            <h2 class="text-2xl font-bold mb-4">Register</h2>
+            <input type="text" id="registerName" placeholder="Nama" class="border border-gray-300 p-2 rounded-lg w-full mb-4">
+            <input type="email" id="registerEmail" placeholder="Email" class="border border-gray-300 p-2 rounded-lg w-full mb-4">
+            <input type="password" id="registerPassword" placeholder="Password" class="border border-gray-300 p-2 rounded-lg w-full mb-4">
+            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full" onclick="register()">Register</button>
+            <p class="mt-4 text-center">Sudah punya akun? <a href="#" onclick="showLogin()">Login</a></p>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboardPage" class="hidden">
+        <nav class="bg-blue-500 p-4 flex justify-between items-center">
+            <h1 class="text-white text-2xl">Store Dashboard</h1>
+            <div>
+                <span id="userName" class="text-white mr-4"></span>
+                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-lg">Logout</button>
+            </div>
+        </nav>
+        <div class="container mx-auto mt-8">
+            <div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
+                <!-- Card Produk 1 -->
+                <div class="bg-white p-4 rounded-lg shadow-lg">
+                    <img src="product-image-1.jpg" alt="Produk 1" class="w-full h-48 object-cover mb-4">
+                    <h3 class="text-lg font-bold mb-2">Produk 1</h3>
+                    <p class="text-gray-700 mb-4">Rp 50.000</p>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(50000, 'Produk 1')">Beli Sekarang</button>
+                </div>
+
+                <!-- Card Produk 2 -->
+                <div class="bg-white p-4 rounded-lg shadow-lg">
+                    <img src="product-image-2.jpg" alt="Produk 2" class="w-full h-48 object-cover mb-4">
+                    <h3 class="text-lg font-bold mb-2">Produk 2</h3>
+                    <p class="text-gray-700 mb-4">Rp 100.000</p>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(100000, 'Produk 2')">Beli Sekarang</button>
+                </div>
+
+                <!-- Card Produk 3 -->
+                <div class="bg-white p-4 rounded-lg shadow-lg">
+                    <img src="product-image-3.jpg" alt="Produk 3" class="w-full h-48 object-cover mb-4">
+                    <h3 class="text-lg font-bold mb-2">Produk 3</h3>
+                    <p class="text-gray-700 mb-4">Rp 150.000</p>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(150000, 'Produk 3')">Beli Sekarang</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchase History -->
+        <div class="container mx-auto mt-8">
+            <h2 class="text-xl font-bold">Riwayat Belanja Anda:</h2>
+            <ul id="purchaseHistory" class="list-disc pl-5 mt-4"></ul>
+        </div>
+    </div>
+
+    <!-- Purchase Notification Modal -->
+    <div id="notificationModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+            <h2 class="text-2xl font-bold mb-4">Lanjutkan Pembayaran</h2>
+            <p class="mb-4">Silakan lanjutkan pembayaran Anda melalui Gmail. Jika Anda setuju, klik OK untuk melanjutkan ke email admin. Jika tidak, pembayaran akan dibatalkan.</p>
+            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full" onclick="confirmPayment()">OK</button>
+            <button class="bg-gray-500 text-white px-4 py-2 rounded-lg w-full mt-2" onclick="cancelPayment()">Batal</button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyAe7DiRe54EYdR4g5eflnBOxWFiGvAu34c",
+            authDomain: "risky-f2de4.firebaseapp.com",
+            databaseURL: "https://risky-f2de4-default-rtdb.firebaseio.com",
+            projectId: "risky-f2de4",
+            storageBucket: "risky-f2de4.appspot.com",
+            messagingSenderId: "70573427034",
+            appId: "1:70573427034:web:85ee8f762992016d310b63",
+            measurementId: "G-4L76NDRV8E"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const functions = firebase.functions();
+        let currentUser;
+        let currentProduct;
+
+        // Show login page
+        function showLogin() {
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.add('hidden');
+        }
+
+        // Show register page
+        function showRegister() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.remove('hidden');
+            document.getElementById('dashboardPage').classList.add('hidden');
+        }
+
+        // Show dashboard page
+        function showDashboard() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('registerPage').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.remove('hidden');
+            loadUserName();
+            loadPurchaseHistory();
+        }
+
+        // Login
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    currentUser = userCredential.user;
+                    showDashboard();
+                })
+                .catch(error => {
+                    alert('Login gagal: ' + error.message);
+                });
+        }
+
+        // Register
+        function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    const user = userCredential.user;
+                    db.collection('users').doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        purchaseHistory: []
+                    });
+                    currentUser = user;
+                    showDashboard();
+                })
+                .catch(error => {
+                    alert('Registrasi gagal: ' + error.message);
+                });
+        }
+
+        // Logout
+        function logout() {
+            auth.signOut().then(() => {
+                showLogin();
+            });
+        }
+
+        // Buy product
+        function buyProduct(price, productName) {
+            if (!currentUser) {
+                alert('Anda harus login terlebih dahulu');
+                return;
+            }
+
+            currentProduct = { price, productName };
+
+            // Tampilkan modal notifikasi
+            document.getElementById('notificationModal').classList.remove('hidden');
+        }
+
+        // Konfirmasi Pembayaran
+        function confirmPayment() {
+            if (!currentProduct) {
+                alert('Produk tidak ditemukan.');
+                return;
+            }
+
+            // Buat URL mailto
+            const email = 'riskydarlis321@gmail.com';
+            const subject = 'Pembelian Produk';
+            const body = `Pesan dari pengguna:\n\nProduk: ${currentProduct.productName}\nHarga: Rp ${currentProduct.price}\n\nSilakan lanjutkan proses pembayaran.`;
+
+            const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoUrl;
+
+            // Tutup modal notifikasi
+            document.getElementById('notificationModal').classList.add('hidden');
+            currentProduct = null; // Reset produk yang sedang dibeli
+        }
+
+        // Batalkan Pembayaran
+        function cancelPayment() {
+            document.getElementById('notificationModal').classList.add('hidden');
+            currentProduct = null; // Reset produk yang sedang dibeli
+        }
+
+        // Load purchase history
+        function loadPurchaseHistory() {
+            if (!currentUser) return;
+
+            const purchaseHistoryList = document.getElementById('purchaseHistory');
+            purchaseHistoryList.innerHTML = '';
+
+            db.collection('users').doc(currentUser.uid).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const purchases = doc.data().purchaseHistory || [];
+                        purchases.forEach(purchase => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `${purchase.productName} - Rp ${purchase.price} - ${purchase.date}`;
+                            purchaseHistoryList.appendChild(listItem);
+                        });
+                    }
+                })
+                .catch(error => {
+                    alert('Gagal memuat riwayat belanja: ' + error.message);
+                });
+        }
+
+        // Load user name
+        function loadUserName() {
+            if (!currentUser) return;
+
+            db.collection('users').doc(currentUser.uid).get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const userName = doc.data().name;
+                        document.getElementById('userName').textContent = `Hi, ${userName}`;
+                    }
+                })
+                .catch(error => {
+                    alert('Gagal memuat nama pengguna: ' + error.message);
+                });
+        }
+
+        // Firebase Auth State Observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                showDashboard();
+            } else {
+                showLogin();
+            }
+        });
+    </script>
+</body>
+</html>
