@@ -106,12 +106,31 @@
 
         <!-- Testimoni Section -->
 <div class="container mx-auto mt-8">
-    <h2 class="text-xl font-bold">Upload Testimoni Anda:</h2>
-    <input type="file" id="imageUpload" accept="image/*" class="mt-4">
-    <button onclick="uploadImage()" class="bg-blue-500 text-white px-4 py-2 mt-2">Upload</button>
+    <h2 class="text-xl font-bold">Daftar Testimoni:</h2>
+    <ul id="testimoniList" class="list-none pl-0 mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Testimoni 1 -->
+        <li class="border p-4 rounded-lg shadow">
+            <img src="path/to/image1.jpg" alt="Testimoni 1" class="w-full h-48 object-cover rounded-md">
+            <p class="mt-2 font-semibold">Panel Testimoni</p>
+            <p class="text-sm text-gray-600">Testimoni ini sangat memuaskan, produk berkualitas tinggi!</p>
+        </li>
 
-    <h2 class="text-xl font-bold mt-8">Daftar Testimoni:</h2>
-    <ul id="testimoniList" class="list-disc pl-5 mt-4"></ul>
+        <!-- Testimoni 2 -->
+        <li class="border p-4 rounded-lg shadow">
+            <img src="path/to/image2.jpg" alt="Testimoni 2" class="w-full h-48 object-cover rounded-md">
+            <p class="mt-2 font-semibold">Panel Testimoni 2</p>
+            <p class="text-sm text-gray-600">Layanan pelanggan yang luar biasa, sangat direkomendasikan!</p>
+        </li>
+
+        <!-- Testimoni 3 -->
+        <li class="border p-4 rounded-lg shadow">
+            <img src="path/to/image3.jpg" alt="Testimoni 3" class="w-full h-48 object-cover rounded-md">
+            <p class="mt-2 font-semibold">Panel Testimoni 3</p>
+            <p class="text-sm text-gray-600">Pengiriman cepat dan tepat waktu. Produk sesuai dengan deskripsi.</p>
+        </li>
+
+        <!-- Tambahkan lebih banyak testimoni sesuai kebutuhan -->
+    </ul>
 </div>
 
     <!-- Purchase Notification Modal -->
@@ -298,65 +317,7 @@
             }
         });
         
-        // Fungsi untuk mengunggah gambar
-function uploadImage() {
-    const file = document.getElementById('imageUpload').files[0];
-    if (!file) {
-        alert('Pilih gambar terlebih dahulu!');
-        return;
-    }
-
-    const storageRef = firebase.storage().ref();
-    const testimoniRef = storageRef.child('testimoni/' + file.name);
-
-    testimoniRef.put(file).then(snapshot => {
-        return snapshot.ref.getDownloadURL();
-    }).then(downloadURL => {
-        saveImageUrl(downloadURL);
-    }).catch(error => {
-        console.error('Error saat mengunggah gambar:', error);
-    });
-}
-
-// Fungsi untuk menyimpan URL gambar di Firestore
-function saveImageUrl(downloadURL) {
-    const testimoniData = {
-        imageUrl: downloadURL,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    db.collection('testimoni').add(testimoniData).then(() => {
-        alert('Testimoni berhasil diunggah!');
-        loadTestimoni();
-    }).catch(error => {
-        console.error('Error saat menyimpan URL gambar:', error);
-    });
-}
-
-// Fungsi untuk memuat dan menampilkan testimoni
-function loadTestimoni() {
-    db.collection('testimoni').orderBy('timestamp', 'desc').get().then(querySnapshot => {
-        const testimoniList = document.getElementById('testimoniList');
-        testimoniList.innerHTML = '';
-
-        querySnapshot.forEach(doc => {
-            const data = doc.data();
-            const li = document.createElement('li');
-            const img = document.createElement('img');
-            img.src = data.imageUrl;
-            img.alt = 'Testimoni';
-            img.className = 'w-32 h-32 object-cover mt-2';
-            li.appendChild(img);
-            testimoniList.appendChild(li);
-        });
-    }).catch(error => {
-        console.error('Error saat memuat testimoni:', error);
-    });
-}
-
-// Panggil fungsi untuk memuat testimoni saat halaman dimuat
-loadTestimoni();
-
+        
     </script>
 </body>
 </html>
