@@ -3,222 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100">
-
-    <!-- Dashboard Page -->
-    <div id="dashboardPage" >
-        <nav class="bg-blue-500 p-4 flex justify-between items-center">
-            <h1 class="text-white text-2xl">Store Dashboard</h1>
-            <div>
-                <span id="userName" class="text-white mr-4"></span>
-            </div>
-        </nav>
-        <div class="container mx-auto mt-8">
-            <div id="products" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-8">
-                <!-- Card Produk 1 -->
-                <div class="bg-white p-4 rounded-lg shadow-lg">
-                    <img src="panel.jpg" alt="Produk 1" class="w-full h-48 object-cover mb-4">
-                    <h3 class="text-lg font-bold mb-2">Panel Memory: 4GB</h3>
-                    <p class="text-gray-700 mb-4">Rp 6.000</p>
-                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(6000, 'Produk 1')">Beli Sekarang</button>
-                </div>
-<!-- Card Produk 2 -->
-<div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="panel.jpg" alt="Produk 2" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">Panel Memory: 5GB</h3>
-    <p class="text-gray-700 mb-4">Rp 8.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(8000, 'Produk 2')">Beli Sekarang</button>
-</div>
-
-<!-- Card Produk 3 -->
-<div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="panel.jpg" alt="Produk 3" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">Panel Memory: 6GB</h3>
-    <p class="text-gray-700 mb-4">Rp 9.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(9000, 'Produk 3')">Beli Sekarang</button>
-</div>
- <!-- Card Produk 1 -->
- <div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="panel.jpg" alt="Produk 1" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">Panel Memory: 7GB</h3>
-    <p class="text-gray-700 mb-4">Rp 12.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(12000, 'Produk 4')">Beli Sekarang</button>
-</div>
-
-<!-- Card Produk 2 -->
-<div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="panel.jpg" alt="Produk 2" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">Panel Memory: 8GB</h3>
-    <p class="text-gray-700 mb-4">Rp 14.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(14000, 'Produk 5')">Beli Sekarang</button>
-</div>
-
-<!-- Card Produk 3 -->
-<div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="panel.jpg" alt="Produk 3" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">Panel Memory: 9GB</h3>
-    <p class="text-gray-700 mb-4">Rp 16.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(16000, 'Produk 6')">Beli Sekarang</button>
-</div>
- <!-- Card Produk 3 -->
- <div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="panel.jpg" alt="Produk 3" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">Panel Memory: unli GB</h3>
-    <p class="text-gray-700 mb-4">Rp 25.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(25000, 'Produk 7')">Beli Sekarang</button>
-</div>
-<!-- Card Produk 3 -->
-<div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="scrxhl.jpg" alt="Produk 3" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">sc bot rxhl v10</h3>
-    <p class="text-gray-700 mb-4">Rp 100.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(100000, 'Produk 8')">Beli Sekarang</button>
-</div>
-<div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="vps.png" alt="Produk 1" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">Vps Murah 2gb core 1</h3>
-    <p class="text-gray-700 mb-4">Rp 15.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(15000, 'Produk 9')">Beli Sekarang</button>
-</div>
-
-<!-- Card Produk 2 -->
-<div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="vps.png" alt="Produk 2" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">Vps Murah 2gb core 2</h3>
-    <p class="text-gray-700 mb-4">Rp 20.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(20000, 'Produk 10')">Beli Sekarang</button>
-</div>
-
-<!-- Card Produk 3 -->
-<div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="vps.png" alt="Produk 3" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">Vps Murah 4gb core 2</h3>
-    <p class="text-gray-700 mb-4">Rp 30.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(30000, 'Produk 6')">Beli Sekarang</button>
-</div>
- <!-- Card Produk 3 -->
- <div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="vps.png" alt="Produk 3" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">Vps Murah 8gb core 4</h3>
-    <p class="text-gray-700 mb-4">Rp 40.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(40000, 'Produk 7')">Beli Sekarang</button>
-</div>
-<!-- Card Produk 3 -->
-<div class="bg-white p-4 rounded-lg shadow-lg">
-    <img src="vps.png" alt="Produk 3" class="w-full h-48 object-cover mb-4">
-    <h3 class="text-lg font-bold mb-2">Vps Murah 16gb core 4</h3>
-    <p class="text-gray-700 mb-4">Rp 50.000</p>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="buyProduct(50000, 'Produk 8')">Beli Sekarang</button>
-</div>
-</div>
-</div>
-
-<!-- Testimoni Section -->
-<div class="container mx-auto mt-8">
-<h2 class="text-xl font-bold">Daftar Testimoni:</h2>
-<ul id="testimoniList" class="list-none pl-0 mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-<!-- Testimoni 1 -->
-<li class="border p-4 rounded-lg shadow">
-<img src="path/to/image1.jpg" alt="Testimoni 1" class="w-full h-48 object-cover rounded-md">
-<p class="mt-2 font-semibold">Panel Testimoni</p>
-<p class="text-sm text-gray-600">Testimoni </p>
-</li>
-
-<!-- Testimoni 2 -->
-<li class="border p-4 rounded-lg shadow">
-<img src="path/to/image2.jpg" alt="Testimoni 2" class="w-full h-48 object-cover rounded-md">
-<p class="mt-2 font-semibold">Panel Testimoni 2</p>
-<p class="text-sm text-gray-600"></p>
-</li>
-
-<!-- Testimoni 3 -->
-<li class="border p-4 rounded-lg shadow">
-<img src="path/to/image3.jpg" alt="Testimoni 3" class="w-full h-48 object-cover rounded-md">
-<p class="mt-2 font-semibold">Panel Testimoni 3</p>
-<p class="text-sm text-gray-600"></p>
-</li>
-
-<!-- Tambahkan lebih banyak testimoni sesuai kebutuhan -->
-</ul>
-</div>
-                <!-- Purchase Notification Modal -->
-                <div id="notificationModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-                    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
-                        <h2 class="text-2xl font-bold mb-4">Lanjutkan Pembayaran</h2>
-                        <p class="mb-4">Silakan lanjutkan pembayaran Anda melalui Gmail. Jika Anda setuju, klik OK untuk melanjutkan ke email admin. Jika tidak, pembayaran akan dibatalkan.</p>
-                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full" onclick="confirmPayment()">OK</button>
-                        <button class="bg-gray-500 text-white px-4 py-2 rounded-lg w-full mt-2" onclick="cancelPayment()">Batal</button>
-                    </div>
-                </div>
-
-                <!-- Purchase History -->
-                <div id="purchaseHistory" class="mt-8"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Initialize current user and product variables
-        let currentUser = null;
-        let currentProduct = null;
-
-        // Function to buy a product
-        function buyProduct(price, productName) {
-            currentProduct = { price, productName };
-            document.getElementById('notificationModal').classList.remove('hidden');
+    <title>RISKY STORE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: "Archivo Black", sans-serif;
+            background: #f4d03f;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
         }
 
-        // Function to confirm payment
-        function confirmPayment() {
-            if (!currentProduct) {
-                alert('Produk tidak ditemukan.');
+        .words-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .words {
+            color: #f4d03f;
+            font-size: 0;
+            line-height: 1.5;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .words span {
+            font-size: 5rem;
+            display: inline-block;
+            animation: move 3s ease-in-out infinite;
+        }
+
+        .word-2 span {
+            animation-delay: 0.2s;
+        }
+
+        .word-3 span {
+            animation-delay: 0.4s;
+        }
+
+        .word-4 span {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes move {
+            0% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            50% {
+                text-shadow: 0 25px 50px rgba(0, 0, 0, 0.75);
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            flex: 1 1 300px;
+            max-width: 500px;
+        }
+
+        @media (max-width: 768px) {
+            .words span {
+                font-size: 3rem;
+            }
+            .card {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .words span {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="words-container">
+    <!-- Animasi Teks -->
+    <div class="words word-1">
+        <span>R</span>
+        <span>I</span>
+        <span>S</span>
+        <span>K</span>
+        <span>Y</span>
+    </div>
+
+    <div class="words word-2">
+        <span>S</span>
+        <span>T</span>
+        <span>O</span>
+        <span>R</span>
+        <span>E</span>
+    </div>
+
+    <div class="words word-3">
+        <span>B</span>
+        <span>E</span>
+        <span>S</span>
+        <span>T</span>
+    </div>
+
+    <div class="words word-4">
+        <span>D</span>
+        <span>E</span>
+        <span>V</span>
+        <span>E</span>
+        <span>L</span>
+        <span>O</span>
+        <span>P</span>
+        <span>E</span>
+        <span>R</span>
+    </div>
+</div>
+
+<div class="card-container">
+    <!-- Form Upload Produk -->
+        <h2 class="text-2xl font-bold mb-4 text-center">Upload Produk</h2>
+        <form id="uploadProductForm" class="space-y-4">
+            <input type="text" id="productTitle" placeholder="Judul Produk" class="w-full p-2 border rounded" required>
+            <textarea id="productDescription" placeholder="Deskripsi Produk" class="w-full p-2 border rounded" required></textarea>
+            <input type="number" id="productPrice" placeholder="Harga Produk" class="w-full p-2 border rounded" required>
+            <input type="file" id="productImage" accept="image/*" class="w-full p-2 border rounded" required>
+            <input type="text" id="confirmationCode" placeholder="Kode Konfirmasi" class="w-full p-2 border rounded" required>
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Upload Produk</button>
+        </form>
+
+    <!-- Daftar Produk -->
+<section class="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
+    <h2 class="text-2xl font-bold mb-4 text-center">Daftar Produk</h2>
+    <div id="productList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Product items will be injected here dynamically -->
+    </div>
+</section>
+
+   <!-- Form Upload Testimoni -->
+<section class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md mt-8">
+    <h2 class="text-2xl font-bold mb-4 text-center">Upload Testimoni</h2>
+    <form id="uploadTestimoniForm" class="space-y-4">
+        <input type="file" id="testimoniImage" accept="image/*" class="w-full p-2 border rounded" required>
+        <input type="text" id="testimoniConfirmationCode" placeholder="Kode Konfirmasi" class="w-full p-2 border rounded" required>
+        <button type="submit" class="w-full bg-orange-500 text-white p-2 rounded hover:bg-orange-600">Upload Testimoni</button>
+    </form>
+    <div id="testimoniList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+        <!-- Testimoni items will be injected here dynamically -->
+    </div>
+</section>
+
+
+<!-- Firebase Initialization -->
+<script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.24.0/firebase-auth.js"></script>
+
+<script>
+    // Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyAe7DiRe54EYdR4g5eflnBOxWFiGvAu34c",
+        authDomain: "risky-f2de4.firebaseapp.com",
+        databaseURL: "https://risky-f2de4-default-rtdb.firebaseio.com",
+        projectId: "risky-f2de4",
+        storageBucket: "risky-f2de4.appspot.com",
+        messagingSenderId: "70573427034",
+        appId: "1:70573427034:web:85ee8f762992016d310b63",
+        measurementId: "G-4L76NDRV8E"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+      // Upload Produk
+      document.getElementById('uploadProductForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('productTitle').value;
+            const description = document.getElementById('productDescription').value;
+            const price = document.getElementById('productPrice').value;
+            const imageFile = document.getElementById('productImage').files[0];
+            const inputCode = document.getElementById('confirmationCode').value;
+
+            // Fetch confirmation code from Firestore
+            const docRef = db.collection('settings').doc('confirmationCode');
+            const doc = await docRef.get();
+            if (!doc.exists || doc.data().code !== inputCode) {
+                alert('Kode konfirmasi salah. Penyimpanan dibatalkan.');
                 return;
             }
 
-            // Buat URL mailto
-            const email = 'riskydarlis321@gmail.com';
-            const subject = 'Pembelian Produk';
-            const body = `Pesan dari pengguna:\n\nProduk: ${currentProduct.productName}\nHarga: Rp ${currentProduct.price}\n\nsilahkan kirimkan pesan ini, \n\n harap cantumkan nomor anda agar kami bisa mengabari anda jika ada hal yang darurat atau refund panel, kami akan selalu amanah .`;
+            // Upload image to Firebase Storage
+            const storageRef = storage.ref('products/' + imageFile.name);
+            const snapshot = await storageRef.put(imageFile);
+            const imageUrl = await snapshot.ref.getDownloadURL();
 
-            const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.location.href = mailtoUrl;
+            // Save product info to Firestore
+            await db.collection('products').add({
+                title,
+                description,
+                price,
+                imageUrl
+            });
 
-            // Tutup modal notifikasi
-            document.getElementById('notificationModal').classList.add('hidden');
-            currentProduct = null; // Reset produk yang sedang dibeli
-        }
+            alert('Produk berhasil diupload!');
+            loadProducts();
+        });
 
-        // Function to cancel payment
-        function cancelPayment() {
-            document.getElementById('notificationModal').classList.add('hidden');
-            currentProduct = null; // Reset produk yang sedang dibeli
-        }
+        // Load Produk
+        async function loadProducts() {
+            const productList = document.getElementById('productList');
+            productList.innerHTML = '';
 
-        // Load purchase history
-        function loadPurchaseHistory() {
-            if (!currentUser) return;
-
-            const purchaseHistoryList = document.getElementById('purchaseHistory');
-            purchaseHistoryList.innerHTML = '';
-
-            // Simulated database interaction (replace with actual database call)
-            const purchases = [
-                { productName: 'Produk 1', price: 6000, date: '2024-08-24' },
-                { productName: 'Produk 2', price: 8000, date: '2024-08-23' }
-            ];
-
-            purchases.forEach(purchase => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${purchase.productName} - Rp ${purchase.price} - ${purchase.date}`;
-                purchaseHistoryList.appendChild(listItem);
+            const productsSnapshot = await db.collection('products').get();
+            productsSnapshot.forEach(doc => {
+                const product = doc.data();
+                const productElement = `
+                    <div class="p-4 bg-gray-100 rounded shadow">
+                        <h3 class="text-xl font-bold">${product.title}</h3>
+                        <p>${product.description}</p>
+                        <p class="font-bold text-green-600">Rp ${product.price}</p>
+                        <img src="${product.imageUrl}" alt="${product.title}" class="w-full h-64 object-cover">
+                        <a href="https://wa.me/6283829749607?text=Saya ingin membeli barang ini: ${product.title}" class="bg-blue-500 text-white p-2 rounded mt-2 inline-block">Pesan Sekarang</a>
+                        <button class="bg-red-500 text-white p-2 rounded mt-2 inline-block" onclick="deleteProduct('${doc.id}')">Hapus</button>
+                    </div>`;
+                productList.innerHTML += productElement;
             });
         }
 
-        // Example usage of loadPurchaseHistory function
-        loadPurchaseHistory();
-    </script>
+        // Hapus Produk
+        async function deleteProduct(productId) {
+            const inputCode = prompt('Masukkan kode konfirmasi untuk menghapus produk:');
+
+            
+            const docRef = db.collection('settings').doc('confirmationCode');
+            const doc = await docRef.get();
+            if (!doc.exists || doc.data().code !== inputCode) {
+                alert('Kode konfirmasi salah. Penghapusan dibatalkan.');
+                return;
+            }
+
+            await db.collection('products').doc(productId).delete();
+            alert('Produk berhasil dihapus!');
+            loadProducts();
+        }
+
+        // Upload Testimoni
+        document.getElementById('uploadTestimoniForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const imageFile = document.getElementById('testimoniImage').files[0];
+            const inputCode = document.getElementById('testimoniConfirmationCode').value;
+
+            // Fetch confirmation code from Firestore
+            const docRef = db.collection('settings').doc('confirmationCode');
+            const doc = await docRef.get();
+            if (!doc.exists || doc.data().code !== inputCode) {
+                alert('Kode konfirmasi salah. Penyimpanan dibatalkan.');
+                return;
+            }
+
+            // Upload testimoni image to Firebase Storage
+            const storageRef = storage.ref('testimoni/' + imageFile.name);
+            const snapshot = await storageRef.put(imageFile);
+            const imageUrl = await snapshot.ref.getDownloadURL();
+
+            // Save testimoni info to Firestore
+            await db.collection('testimoni').add({
+                imageUrl
+            });
+
+            alert('Testimoni berhasil diupload!');
+            loadTestimoni();
+        });
+
+        // Load Testimoni
+        async function loadTestimoni() {
+            const testimoniList = document.getElementById('testimoniList');
+            testimoniList.innerHTML = '';
+
+            const testimoniSnapshot = await db.collection('testimoni').get();
+            testimoniSnapshot.forEach(doc => {
+                const testimoni = doc.data();
+                const testimoniElement = `
+                    <div class="p-4 bg-gray-100 rounded shadow">
+                        <img src="${testimoni.imageUrl}" alt="Testimoni" class="w-full h-64 object-cover">
+                    </div>`;
+                testimoniList.innerHTML += testimoniElement;
+            });
+        }
+
+        // Load products and testimonials on page load
+        loadProducts();
+        loadTestimoni();
+</script>
+
 </body>
 </html>
