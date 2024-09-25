@@ -145,6 +145,20 @@
         }
     </style>
 </head>
+<div class="mb-6 flex justify-end">
+    <div class="relative mt-1">
+        <input type="text" id="search" oninput="searchTitles()" 
+            class="block w-48 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition duration-200 ease-in-out"
+            placeholder="Masukkan judul yang dicari...">
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12h4m-2-2v4m-6-6h4m-2-2v4M12 12m-6-6h12m-6 6V6m6 6h4m-2 2v-4" />
+            </svg>
+        </div>
+    </div>
+</div>
+
+
 
 <body class="bg-gray-100">
     <!-- Sidebar -->
@@ -218,32 +232,55 @@
             toggleButton.classList.toggle('active');
         }
 
+        // Function to search titles in the teaching materials list
+function searchTitles() {
+    const searchInput = document.getElementById('search').value.toLowerCase();
+    const bahanAjarList = document.getElementById('bahanAjarList');
+    const materials = bahanAjarList.getElementsByTagName('div');
+
+    for (let i = 0; i < materials.length; i++) {
+        const titleElement = materials[i].getElementsByTagName('h3')[0];
+        const titleText = titleElement.textContent.toLowerCase();
+
+        // Show or hide the material based on the search input
+        if (titleText.includes(searchInput)) {
+            materials[i].style.display = ''; // Show
+        } else {
+            materials[i].style.display = 'none'; // Hide
+        }
+    }
+}
+
         // Function to load saved teaching materials from Firestore
         function loadMaterials() {
-            db.collection("teachingMaterials").get().then((querySnapshot) => {
-                const bahanAjarList = document.getElementById('bahanAjarList');
-                bahanAjarList.innerHTML = ''; // Clear previous list
+    db.collection("teachingMaterials").get().then((querySnapshot) => {
+        const bahanAjarList = document.getElementById('bahanAjarList');
+        bahanAjarList.innerHTML = ''; // Clear previous list
 
-                querySnapshot.forEach((doc) => {
-                    const material = doc.data();
-                    const materialElement = document.createElement('div');
-                    materialElement.className = 'p-4 bg-gray-200 rounded-md';
-                    materialElement.innerHTML = `
-                        <h3 class="text-lg font-bold">${material.title}</h3>
-                        ${material.fileUrl ? `<a href="${material.fileUrl}" class="block text-blue-600 hover:underline mt-2" target="_blank">Download File</a>` : ''}
-                        <button data-id="${doc.id}" class="mt-2 bg-red-500 text-white py-1 px-2 rounded-md deleteBtn">Hapus</button>
-                    `;
-                    bahanAjarList.appendChild(materialElement);
+        querySnapshot.forEach((doc) => {
+            const material = doc.data();
+            const materialElement = document.createElement('div');
+            materialElement.className = 'p-4 bg-gray-200 rounded-md';
+            materialElement.innerHTML = `
+                <h3 class="text-lg font-bold">${material.title}</h3>
+                ${material.fileUrl ? `<a href="${material.fileUrl}" class="block text-blue-600 hover:underline mt-2" target="_blank">Download File</a>` : ''}
+                <button data-id="${doc.id}" class="mt-2 bg-red-500 text-white py-1 px-2 rounded-md deleteBtn">Hapus</button>
+            `;
+            bahanAjarList.appendChild(materialElement);
 
-                    // Add delete event listener
-                    materialElement.querySelector('.deleteBtn').addEventListener('click', () => {
-                        deleteMaterial(doc.id, material.fileUrl); // Pass fileUrl to deleteMaterial function
-                    });
-                });
-            }).catch((error) => {
-                console.error("Error loading materials: ", error);
+            // Add delete event listener
+            materialElement.querySelector('.deleteBtn').addEventListener('click', () => {
+                deleteMaterial(doc.id, material.fileUrl);
             });
-        }
+        });
+
+        // Call search function to filter results
+        searchTitles();
+    }).catch((error) => {
+        console.error("Error loading materials: ", error);
+    });
+}
+
 
        // Function to save teaching material and upload file to Firestore
 async function saveMaterial(event) {
